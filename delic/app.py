@@ -28,5 +28,10 @@ def run():
         sys.exit(1)
 
     # Check sites
+    results = {}
     for site in config['sites']:
-        check_site(site)
+        result = check_site(site)
+        results[site] = result
+
+    # Print results
+    print(repr(results))

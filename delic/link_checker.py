@@ -44,6 +44,7 @@ def check_site(base_url):
     '''Check all links of a single site'''
     # Init
     checked_urls = []
+    broken_urls = []
     link_queue = queue.Queue()
 
     # Define worker
@@ -52,11 +53,15 @@ def check_site(base_url):
             link = link_queue.get()
             if link not in checked_urls:
                 checked_urls.append(link)
-                check_link(link_queue, checked_urls, base_url, link)
+                check_link(link_queue,
+                           checked_urls,
+                           broken_urls,
+                           base_url,
+                           link)
             link_queue.task_done()
 
     # Start worker thread
-    for _ in range(4):
+    for _ in range(8):
         threading.Thread(target=check_link_worker, daemon=True).start()
 
     # Queue base URL
@@ -66,17 +71,34 @@ def check_site(base_url):
     link_queue.join()
 
     # Return results
-    checked_urls.sort()
-    for url in checked_urls:
-        print(url)
+    return {
+        'summary': {
+            'links_checked': len(checked_urls),
+            'links_broken': len(broken_urls),
+        },
+        'details': {
+            'broken': broken_urls
+        }
+    }
 
 
-def check_link(link_queue, checked_urls, base_url, url):
+def check_link(link_queue, checked_urls, broken_links, base_url, url):
     '''Check a single link'''
     # Create parser
     parser = DelicHTMLParser(link_queue, checked_urls, base_url)
 
-    # Fetch and parse content
+    # Fetch header
     logging.info('Checking URL: %s', url)
-    req = requests.get(url)
-    parser.feed(req.text)
+    req = requests.head(url)
+    if req.status_code >= 400:
+        report = {
+            'url': url,
+            'status': req.status_code,
+        }
+        broken_links.append(report)
+
+    # Link is HTML page
+    # Fetch and parse page
+    if req.headers['content-type'].startswith('text/html'):
+        req_html = requests.get(url)
+        parser.feed(req_html.text)
