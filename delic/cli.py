@@ -8,8 +8,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-c', '--config',
-        help='Location of the config file. Default: "./config.yml"',
-        default='config.yml',
+        help='Location of the config file. Default: "/config.yml"',
+        default='/config.yml',
     )
     parser.add_argument(
         '-v', '--verbose',

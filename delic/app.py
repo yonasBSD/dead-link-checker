@@ -14,10 +14,6 @@ def run():
     # Parse arguments
     args = parse_args()
 
-    # Set logging to DEBUG, if verbose is enabled
-    if args.verbose:
-        logging.basicConfig(level=logging.INFO)
-
     # Load config file
     try:
         config_path = Path(args.config)
@@ -26,6 +22,10 @@ def run():
         logging.error('Config file not found at path "%s"',
                       config_path.absolute())
         sys.exit(1)
+
+    # Set logging to INFO, if verbose is enabled
+    if args.verbose or config.get('verbose'):
+        logging.basicConfig(level=logging.INFO)
 
     # Check sites
     results = {}
