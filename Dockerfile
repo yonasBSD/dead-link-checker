@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "./delic/app.py" ]
+CMD [ "python", "-m", "delic" ]
