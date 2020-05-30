@@ -29,8 +29,9 @@ def run():
 
     # Check sites
     results = {}
+    workers_count = config.get('workers_per_site', 8)
     for site in config['sites']:
-        result = check_site(site)
+        result = check_site(site, workers_count)
         results[site] = result
 
     # Print results

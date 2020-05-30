@@ -40,12 +40,16 @@ class DelicHTMLParser(HTMLParser):
                     self.link_queue.put(cleaned_url)
 
 
-def check_site(base_url):
+def check_site(base_url, workers_count):
     '''Check all links of a single site'''
     # Init
     checked_urls = []
     broken_urls = []
     link_queue = queue.Queue()
+
+    # Log start
+    msg = "Start link checking with %s workers for %s"
+    logging.info(msg, workers_count, base_url)
 
     # Define worker
     def check_link_worker():
@@ -61,7 +65,7 @@ def check_site(base_url):
             link_queue.task_done()
 
     # Start worker thread
-    for _ in range(8):
+    for _ in range(workers_count):
         threading.Thread(target=check_link_worker, daemon=True).start()
 
     # Queue base URL
