@@ -12,3 +12,5 @@
 !/delic/__init__.py
 !/delic/__main__.py
 !/delic/app.py
+!/delic/cli.py
+!/delic/config.py
