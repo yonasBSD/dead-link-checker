@@ -14,3 +14,4 @@
 !/delic/app.py
 !/delic/cli.py
 !/delic/config.py
+!/delic/link_checker.py
