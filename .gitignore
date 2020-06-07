@@ -8,6 +8,10 @@
 !/README.md
 !/requirements.txt
 
+!/.github/
+!/.github/workflows/
+!/.github/workflows/build-multi-arch-docker.yml
+
 !/delic/
 !/delic/__init__.py
 !/delic/__main__.py
