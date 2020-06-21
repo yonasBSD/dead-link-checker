@@ -1,5 +1,5 @@
 '''This module handles the actual link checking'''
-# pylint: disable=no-name-in-module
+# pylint: disable=no-name-in-module, no-member
 
 import logging
 import queue
@@ -124,6 +124,12 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
     # Fetch header
     logging.info('Checking URL: %s', link.url)
     req = requests.head(link.url)
+
+    # Retry with GET if method not allowed
+    if req.status_code == requests.codes.method_not_allowed:
+        req = requests.get(link.url)
+
+    # Check status of request
     if req.status_code >= 400:
         report = {
             'page': link.parent_url,
