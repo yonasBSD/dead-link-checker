@@ -25,6 +25,10 @@ IGNORED_SCHEMAS = (
     'tel:',
 )
 
+REQUESTS_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0',
+}
+
 
 class Link(BaseModel):
     '''Represents a single link with its attributes'''
@@ -123,11 +127,11 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
 
     # Fetch header
     logging.info('Checking URL: %s', link.url)
-    req = requests.head(link.url)
+    req = requests.head(link.url, headers=REQUESTS_HEADERS)
 
     # Retry with GET if method not allowed
     if req.status_code == requests.codes.method_not_allowed:
-        req = requests.get(link.url)
+        req = requests.get(link.url, headers=REQUESTS_HEADERS)
 
     # Check status of request
     if req.status_code >= 400:
@@ -142,5 +146,5 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
     # Fetch and parse page
     content_type = req.headers.get('content-type', '')
     if content_type.startswith('text/html') and link.url.startswith(base_url):
-        req_html = requests.get(link.url)
+        req_html = requests.get(link.url, headers=REQUESTS_HEADERS)
         parser.feed(req_html.text)
