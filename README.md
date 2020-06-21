@@ -1,3 +1,6 @@
+![Build multi arch Docker](https://github.com/JenswBE/python-dead-link-checker/workflows/Build%20multi%20arch%20Docker/badge.svg)
+[![Docker Pulls](https://img.shields.io/docker/pulls/jenswbe/dead-link-checker)](https://hub.docker.com/repository/docker/jenswbe/dead-link-checker)
+
 # Dead Link Checker (DeLiC)
 
 Dead link checker written in Python
