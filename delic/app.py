@@ -44,8 +44,8 @@ def run():
     notify_provider = notify_settings.get('provider')
     if notify_provider:
         # Filter results with broken links
-        broken_results = {k: v for (k, v) in results.items(
-        ) if v['summary']['urls_broken'] > 0}
+        broken_results = {
+            x for x in results if x['summary']['urls_broken'] > 0}
 
         # Notify user of broken results
         if len(broken_results) > 0:

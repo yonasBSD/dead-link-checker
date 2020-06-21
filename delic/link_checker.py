@@ -1,4 +1,5 @@
 '''This module handles the actual link checking'''
+# pylint: disable=no-name-in-module
 
 import logging
 import queue
