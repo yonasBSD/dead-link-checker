@@ -18,6 +18,13 @@ LINK_TAGS = {
     'source': ['srcset'],
 }
 
+IGNORED_SCHEMAS = (
+    'data:',
+    'ftp:',
+    'mailto:',
+    'tel:',
+)
+
 
 class Link(BaseModel):
     '''Represents a single link with its attributes'''
@@ -40,6 +47,10 @@ class DelicHTMLParser(HTMLParser):
                            in attrs
                            if attr[0] in LINK_TAGS[tag])
             for attr_value in attr_values:
+                # Check if schema is ignored
+                if attr_value.startswith(IGNORED_SCHEMAS):
+                    continue  # Ignore url
+
                 # Extract url
                 target_url = urljoin(self.base_url, attr_value)
                 cleaned_url = target_url.split('#')[0]
@@ -123,6 +134,7 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
 
     # Link is HTML page and is internal
     # Fetch and parse page
-    if req.headers['content-type'].startswith('text/html') and link.url.startswith(base_url):
+    content_type = req.headers.get('content-type', '')
+    if content_type.startswith('text/html') and link.url.startswith(base_url):
         req_html = requests.get(link.url)
         parser.feed(req_html.text)
