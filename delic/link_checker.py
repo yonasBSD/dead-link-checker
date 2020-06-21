@@ -21,6 +21,7 @@ LINK_TAGS = {
 IGNORED_SCHEMAS = (
     'data:',
     'ftp:',
+    'javascript:',
     'mailto:',
     'tel:',
 )
