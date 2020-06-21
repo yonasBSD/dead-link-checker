@@ -49,14 +49,9 @@ def run():
 
         # Notify user of broken results
         if len(broken_results) > 0:
-            logging.info(
-                'Preparing to send notification to user using provider "%s"',
-                notify_provider
-            )
             notify_data = notify_settings.get('data', {})
             pretty_results = pretty_json(broken_results)
             send_notification(pretty_results, notify_provider, notify_data)
-            logging.info("Notification successfully sent")
 
 
 def pretty_json(object_):
