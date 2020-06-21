@@ -1,3 +1,4 @@
+notifiers
 pydantic
 pyyaml
 requests
