@@ -8,6 +8,8 @@ Dead link checker written in Python
 verbose: False # Optional
 workers_per_site: 8 # Optional
 
+cron: "0 0 * * *" # Optional, run every night
+
 sites:
   - https://jensw.be
 

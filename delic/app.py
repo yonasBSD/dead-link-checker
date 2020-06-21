@@ -5,6 +5,9 @@ import logging
 import sys
 from pathlib import Path
 
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.triggers.cron import CronTrigger
+
 from delic.cli import parse_args
 from delic.config import load_yaml_file
 from delic.link_checker import check_site
@@ -29,6 +32,22 @@ def run():
     if args.verbose or config.get('verbose'):
         logging.basicConfig(level=logging.INFO)
 
+    # Run job once or start scheduler
+    crontab = config.get('cron')
+    if crontab:
+        logging.info(
+            "Crontab found, starting scheduler with crontab: %s", crontab)
+        scheduler = BlockingScheduler()
+        def check_sites_job(): check_sites(config)
+        scheduler.add_job(check_sites_job, CronTrigger.from_crontab(crontab))
+        logging.info("Scheduler started for specified crontab")
+        scheduler.start()
+    else:
+        logging.info("No cron specified, running checker once")
+        check_sites(config)
+
+
+def check_sites(config):
     # Check sites
     results = []
     workers_count = config.get('workers_per_site', 8)

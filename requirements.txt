@@ -1,3 +1,4 @@
+apscheduler
 notifiers
 pydantic
 pyyaml
