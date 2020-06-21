@@ -44,7 +44,7 @@ class DelicHTMLParser(HTMLParser):
                 cleaned_url = target_url.split('#')[0]
 
                 # Add url to queue
-                if cleaned_url.startswith(self.base_url) and cleaned_url not in self.checked_urls:
+                if cleaned_url not in self.checked_urls:
                     new_link = Link(
                         url=cleaned_url,
                         parent_url=self.parent_url,
@@ -119,8 +119,8 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
         }
         broken_links.append(report)
 
-    # Link is HTML page
+    # Link is HTML page and is internal
     # Fetch and parse page
-    if req.headers['content-type'].startswith('text/html'):
+    if req.headers['content-type'].startswith('text/html') and link.url.startswith(base_url):
         req_html = requests.get(link.url)
         parser.feed(req_html.text)
