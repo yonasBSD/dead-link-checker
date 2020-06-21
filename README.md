@@ -5,11 +5,27 @@ Dead link checker written in Python
 ## 1. Config
 
 ```yaml
-sites:
-  - https://jensw.be
 verbose: False # Optional
 workers_per_site: 8 # Optional
+
+sites:
+  - https://jensw.be
+
+notify: # Optional, example for Mailjet using SMTP
+  provider: email
+  data:
+    host: in-v3.mailjet.com
+    port: 587
+    tls: True
+    username: REPLACE_ME
+    password: REPLACE_ME
+    from: delic@example.com
+    to: admin@example.com
+    subject: Broken links found
 ```
+
+See [Notifiers documentation](https://notifiers.readthedocs.io/en/latest/providers/index.html)
+for the full list of supported notification providers and their configurations.
 
 ## 2. Run DeLiC
 
@@ -17,4 +33,10 @@ By default, DeLiC tries to read the config file at `/config.yml`.
 
 ```bash
 docker run -v /path/to/config.yml:/config.yml jenswbe/dead-link-checker
+```
+
+## 3. CLI arguments
+```
+-c, --config    Location of the config file
+-v, --verbose   Enable verbose output
 ```
