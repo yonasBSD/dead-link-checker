@@ -1,5 +1,6 @@
 '''Main module combining all logic'''
 
+import json
 import logging
 import sys
 from pathlib import Path
@@ -35,4 +36,4 @@ def run():
         results[site] = result
 
     # Print results
-    print(repr(results))
+    print(json.dumps(results, indent=4, sort_keys=True))
