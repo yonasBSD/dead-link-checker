@@ -30,11 +30,11 @@ def run():
         logging.basicConfig(level=logging.INFO)
 
     # Check sites
-    results = {}
+    results = []
     workers_count = config.get('workers_per_site', 8)
     for site in config['sites']:
         result = check_site(site, workers_count)
-        results[site] = result
+        results.append(result)
 
     # Print results
     print(pretty_json(results))
@@ -59,5 +59,4 @@ def pretty_json(object_):
     return json.dumps(
         object_,
         indent=4,
-        sort_keys=True
     )

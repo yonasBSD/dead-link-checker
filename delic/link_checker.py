@@ -92,13 +92,14 @@ def check_site(base_url, workers_count):
 
     # Return results
     return {
+        'site': base_url,
         'summary': {
             'urls_checked': len(checked_urls),
             'urls_broken': len(broken_urls),
         },
         'details': {
             'broken': broken_urls
-        }
+        },
     }
 
 
