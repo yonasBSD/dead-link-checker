@@ -1,9 +1,10 @@
 '''Module to handle CLI interactions'''
 
 import argparse
+from typing import List
 
 
-def parse_args(args):
+def parse_args(args: List) -> argparse.Namespace:
     '''Parse and return arguments'''
     parser = argparse.ArgumentParser()
     parser.add_argument(

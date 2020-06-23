@@ -5,10 +5,6 @@ import pytest
 from delic.cli import parse_args
 
 
-# ================================
-# =        SecretToken        =
-# ================================
-
 @pytest.mark.parametrize("config_in,config_out", [
     ([], '/config.yml'),
     (['-c', './test-config.yml'], './test-config.yml'),

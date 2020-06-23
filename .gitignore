@@ -24,3 +24,4 @@
 !/tests/
 !/tests/__init__.py
 !/tests/test_cli.py
+!/tests/test_config.py
