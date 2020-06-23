@@ -1,0 +1,6 @@
+# General
+apscheduler
+notifiers
+pydantic
+pyyaml
+requests

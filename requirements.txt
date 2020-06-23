@@ -1,6 +1,1 @@
-apscheduler
-notifiers
-pydantic
-pyyaml
-pytest
-requests
+-r requirements/prod.txt

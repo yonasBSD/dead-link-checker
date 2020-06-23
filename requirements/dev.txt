@@ -1,0 +1,6 @@
+# Include prod
+-r prod.txt
+
+# Tests
+pytest
+pytest-cov

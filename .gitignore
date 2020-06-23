@@ -10,7 +10,7 @@
 
 !/.github/
 !/.github/workflows/
-!/.github/workflows/build-multi-arch-docker.yml
+!/.github/workflows/test-build-publish.yml
 
 !/delic/
 !/delic/__init__.py
@@ -21,7 +21,12 @@
 !/delic/link_checker.py
 !/delic/notify.py
 
+!/requirements/
+!/requirements/dev.txt
+!/requirements/prod.txt
+
 !/tests/
 !/tests/__init__.py
 !/tests/test_cli.py
 !/tests/test_config.py
+!/tests/test_notify.py
