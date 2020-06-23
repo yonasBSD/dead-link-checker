@@ -3,7 +3,7 @@
 import argparse
 
 
-def parse_args():
+def parse_args(args):
     '''Parse and return arguments'''
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -16,4 +16,4 @@ def parse_args():
         help='Enable verbose output',
         action='store_true',
     )
-    return parser.parse_args()
+    return parser.parse_args(args)

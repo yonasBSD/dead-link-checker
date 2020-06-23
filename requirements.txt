@@ -2,4 +2,5 @@ apscheduler
 notifiers
 pydantic
 pyyaml
+pytest
 requests

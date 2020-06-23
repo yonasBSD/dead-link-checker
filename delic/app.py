@@ -17,7 +17,7 @@ from delic.notify import send_notification
 def run():
     '''Run Dead Link Checker'''
     # Parse arguments
-    args = parse_args()
+    args = parse_args(sys.argv[1:])
 
     # Load config file
     try:

@@ -20,3 +20,7 @@
 !/delic/config.py
 !/delic/link_checker.py
 !/delic/notify.py
+
+!/tests/
+!/tests/__init__.py
+!/tests/test_cli.py
