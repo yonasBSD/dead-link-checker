@@ -4,6 +4,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from typing import List
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -11,7 +12,12 @@ from apscheduler.triggers.cron import CronTrigger
 from delic.cli import parse_args
 from delic.config import load_yaml_file
 from delic.link_checker import check_site
+from delic.models import SiteResultList
 from delic.notify import send_notification
+
+JSON_ARGS = {
+    'indent': 4
+}
 
 
 def run():
@@ -49,33 +55,33 @@ def run():
 
 def check_sites(config):
     # Check sites
-    results = []
+    results = SiteResultList()
     workers_count = config.get('workers_per_site', 8)
     for site in config['sites']:
         result = check_site(site, workers_count)
-        results.append(result)
+        results.__root__.append(result)
 
     # Print results
-    print(pretty_json(results))
+    print(results.json(**JSON_ARGS))
 
     # Send notification if settings are provided
     notify_settings = config.get('notify', {})
     notify_provider = notify_settings.get('provider')
     if notify_provider:
         # Filter results with broken links
-        broken_results = [
-            x for x in results if x['summary']['urls_broken'] > 0]
+        broken_results_list = [
+            x for x in results.__root__ if x.summary.urls_broken > 0]
 
         # Notify user of broken results
-        if len(broken_results) > 0:
+        if len(broken_results_list) > 0:
             notify_data = notify_settings.get('data', {})
-            pretty_results = pretty_json(broken_results)
-            send_notification(pretty_results, notify_provider, notify_data)
+            broken_results = SiteResultList.parse_obj(broken_results_list)
+            json_results = broken_results.json(**JSON_ARGS)
+            send_notification(json_results, notify_provider, notify_data)
 
 
 def pretty_json(object_):
     '''Returns pretty json'''
-    return json.dumps(
-        object_,
+    return object_.json(
         indent=4,
     )

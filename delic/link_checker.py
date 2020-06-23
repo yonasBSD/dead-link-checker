@@ -1,14 +1,17 @@
 '''This module handles the actual link checking'''
-# pylint: disable=no-name-in-module, no-member
+# pylint: disable=no-member
 
 import logging
 import queue
 import threading
 from html.parser import HTMLParser
+from http.client import responses
+from typing import List
 from urllib.parse import urljoin
 
 import requests
-from pydantic import BaseModel
+
+from delic.models import Link, SiteResult, SiteResultDetails, SiteResultSummary
 
 LINK_TAGS = {
     'a': ['href'],
@@ -31,19 +34,13 @@ REQUESTS_HEADERS = {
 }
 
 
-class Link(BaseModel):
-    '''Represents a single link with its attributes'''
-    url: str
-    parent_url: str
-
-
 class DelicHTMLParser(HTMLParser):
-    def __init__(self, link_queue, checked_urls, base_url, parent_url):
+    def __init__(self, link_queue, checked_urls, base_url, page):
         super().__init__()
         self.link_queue = link_queue
         self.checked_urls = checked_urls
         self.base_url = base_url
-        self.parent_url = parent_url
+        self.page = page
 
     def handle_starttag(self, tag, attrs):
         if tag in LINK_TAGS:
@@ -64,16 +61,16 @@ class DelicHTMLParser(HTMLParser):
                 if cleaned_url not in self.checked_urls:
                     new_link = Link(
                         url=cleaned_url,
-                        parent_url=self.parent_url,
+                        page=self.page,
                     )
                     self.link_queue.put(new_link)
 
 
-def check_site(base_url, workers_count):
+def check_site(base_url, workers_count) -> SiteResult:
     '''Check all links of a single site'''
     # Init
-    checked_urls = []
-    broken_urls = []
+    checked_urls: List[str] = []
+    broken_links: List[Link] = []
     link_queue = queue.Queue()
 
     # Log start
@@ -88,7 +85,7 @@ def check_site(base_url, workers_count):
                 checked_urls.append(link.url)
                 check_link(link_queue,
                            checked_urls,
-                           broken_urls,
+                           broken_links,
                            base_url,
                            link)
             link_queue.task_done()
@@ -100,7 +97,7 @@ def check_site(base_url, workers_count):
     # Queue base URL
     base_link = Link(
         url=base_url,
-        parent_url='',
+        page='',
     )
     link_queue.put(base_link)
 
@@ -108,16 +105,16 @@ def check_site(base_url, workers_count):
     link_queue.join()
 
     # Return results
-    return {
-        'site': base_url,
-        'summary': {
-            'urls_checked': len(checked_urls),
-            'urls_broken': len(broken_urls),
-        },
-        'details': {
-            'broken': broken_urls
-        },
-    }
+    return SiteResult(
+        site=base_url,
+        summary=SiteResultSummary(
+            urls_checked=len(checked_urls),
+            urls_broken=len(broken_links),
+        ),
+        details=SiteResultDetails(
+            broken=broken_links,
+        ),
+    )
 
 
 def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
@@ -136,12 +133,8 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
 
     # Check status of request
     if req.status_code >= 400:
-        report = {
-            'page': link.parent_url,
-            'broken_url': link.url,
-            'status': req.status_code,
-        }
-        broken_links.append(report)
+        link.status = f"{req.status_code} - {responses[req.status_code]}"
+        broken_links.append(link)
 
     # Link is HTML page and is internal
     # Fetch and parse page
