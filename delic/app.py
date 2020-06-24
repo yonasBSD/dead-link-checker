@@ -78,10 +78,3 @@ def check_sites(config):
             broken_results = SiteResultList.parse_obj(broken_results_list)
             json_results = broken_results.json(**JSON_ARGS)
             send_notification(json_results, notify_provider, notify_data)
-
-
-def pretty_json(object_):
-    '''Returns pretty json'''
-    return object_.json(
-        indent=4,
-    )
