@@ -161,3 +161,30 @@ def test_success_no_notify_when_no_broken_links(mock_parse_args: mock.MagicMock,
     ])
     mock_check_site.call_count == 2
     mock_notify.assert_not_called()
+
+
+@mock.patch('delic.app.send_notification')
+@mock.patch('delic.app.check_site')
+@mock.patch('delic.app.load_yaml_file')
+@mock.patch('delic.app.parse_args')
+def test_fail_config_file_not_found(mock_parse_args: mock.MagicMock,
+                                    mock_load_config: mock.MagicMock,
+                                    mock_check_site: mock.MagicMock,
+                                    mock_notify: mock.MagicMock):
+    '''Tests happy flow for a single run (no schedule)'''
+    # Setup mocks
+    mock_parse_args.return_value = Namespace(
+        config='test-config.yml',
+        verbose=True,
+    )
+    mock_load_config.side_effect = FileNotFoundError
+
+    # Call function
+    with pytest.raises(SystemExit):
+        app.run()
+
+    # Assert results
+    mock_parse_args.assert_called_with(mock.ANY)
+    mock_load_config.assert_called_with(Path('test-config.yml'))
+    mock_check_site.assert_not_called()
+    mock_notify.assert_not_called()
