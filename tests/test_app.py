@@ -51,6 +51,8 @@ def get_check_site_result() -> models.SiteResultList:
 def get_config_dict():
     '''Returns a config dictionary'''
     return {
+        'verbose': False,
+        'workers_per_site': 11,
         'sites': [
             'http://test-site-1',
             'http://test-site-2',
@@ -67,7 +69,7 @@ def get_config_dict():
 
 @mock.patch('delic.app.send_notification')
 @mock.patch('delic.app.check_site')
-@mock.patch('delic.app.load_yaml_file')
+@mock.patch('delic.app.load_config_file')
 @mock.patch('delic.app.parse_args')
 def test_success_single_run(mock_parse_args: mock.MagicMock,
                             mock_load_config: mock.MagicMock,
@@ -89,8 +91,8 @@ def test_success_single_run(mock_parse_args: mock.MagicMock,
     mock_parse_args.assert_called_with(mock.ANY)
     mock_load_config.assert_called_with(Path('test-config.yml'))
     mock_check_site.assert_has_calls([
-        mock.call('http://test-site-1', 8),
-        mock.call('http://test-site-2', 8),
+        mock.call('http://test-site-1', 11),
+        mock.call('http://test-site-2', 11),
     ])
     mock_check_site.call_count == 2
     expected_notify = get_check_site_result()
@@ -103,7 +105,7 @@ def test_success_single_run(mock_parse_args: mock.MagicMock,
 
 
 @mock.patch('delic.app.BlockingScheduler')
-@mock.patch('delic.app.load_yaml_file')
+@mock.patch('delic.app.load_config_file')
 @mock.patch('delic.app.parse_args')
 def test_success_scheduled(mock_parse_args: mock.MagicMock,
                            mock_load_config: mock.MagicMock,
@@ -134,7 +136,7 @@ def test_success_scheduled(mock_parse_args: mock.MagicMock,
 
 @mock.patch('delic.app.send_notification')
 @mock.patch('delic.app.check_site')
-@mock.patch('delic.app.load_yaml_file')
+@mock.patch('delic.app.load_config_file')
 @mock.patch('delic.app.parse_args')
 def test_success_no_notify_when_no_broken_links(mock_parse_args: mock.MagicMock,
                                                 mock_load_config: mock.MagicMock,
@@ -156,8 +158,8 @@ def test_success_no_notify_when_no_broken_links(mock_parse_args: mock.MagicMock,
     mock_parse_args.assert_called_with(mock.ANY)
     mock_load_config.assert_called_with(Path('test-config.yml'))
     mock_check_site.assert_has_calls([
-        mock.call('http://test-site-1', 8),
-        mock.call('http://test-site-2', 8),
+        mock.call('http://test-site-1', 11),
+        mock.call('http://test-site-2', 11),
     ])
     mock_check_site.call_count == 2
     mock_notify.assert_not_called()
@@ -165,7 +167,7 @@ def test_success_no_notify_when_no_broken_links(mock_parse_args: mock.MagicMock,
 
 @mock.patch('delic.app.send_notification')
 @mock.patch('delic.app.check_site')
-@mock.patch('delic.app.load_yaml_file')
+@mock.patch('delic.app.load_config_file')
 @mock.patch('delic.app.parse_args')
 def test_fail_config_file_not_found(mock_parse_args: mock.MagicMock,
                                     mock_load_config: mock.MagicMock,

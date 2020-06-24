@@ -10,7 +10,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from delic.cli import parse_args
-from delic.config import load_yaml_file
+from delic.config import load_config_file
 from delic.link_checker import check_site
 from delic.models import SiteResultList
 from delic.notify import send_notification
@@ -28,14 +28,14 @@ def run():
     # Load config file
     try:
         config_path = Path(args.config)
-        config = load_yaml_file(config_path)
+        config = load_config_file(config_path)
     except FileNotFoundError:
         logging.error('Config file not found at path "%s"',
                       config_path.absolute())
         sys.exit(1)
 
     # Set logging to INFO, if verbose is enabled
-    if args.verbose or config.get('verbose'):
+    if args.verbose or config['verbose']:
         logging.basicConfig(level=logging.INFO)
 
     # Run job once or start scheduler
@@ -56,7 +56,7 @@ def run():
 def check_sites(config):
     # Check sites
     results = SiteResultList()
-    workers_count = config.get('workers_per_site', 8)
+    workers_count = config['workers_per_site']
     for site in config['sites']:
         result = check_site(site, workers_count)
         results.__root__.append(result)
