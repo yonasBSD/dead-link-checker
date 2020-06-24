@@ -86,7 +86,7 @@ def test_success_single_run(mock_parse_args: mock.MagicMock,
     app.run()
 
     # Assert results
-    mock_parse_args.assert_called_with([])
+    mock_parse_args.assert_called_with(mock.ANY)
     mock_load_config.assert_called_with(Path('test-config.yml'))
     mock_check_site.assert_has_calls([
         mock.call('http://test-site-1', 8),
@@ -123,7 +123,7 @@ def test_success_scheduled(mock_parse_args: mock.MagicMock,
     app.run()
 
     # Assert results
-    mock_parse_args.assert_called_with([])
+    mock_parse_args.assert_called_with(mock.ANY)
     mock_load_config.assert_called_with(Path('test-config.yml'))
     assert mock_scheduler_instance.add_job.call_count == 1
     scheduled_def, schedule = mock_scheduler_instance.add_job.call_args[0]
@@ -153,7 +153,7 @@ def test_success_no_notify_when_no_broken_links(mock_parse_args: mock.MagicMock,
     app.run()
 
     # Assert results
-    mock_parse_args.assert_called_with([])
+    mock_parse_args.assert_called_with(mock.ANY)
     mock_load_config.assert_called_with(Path('test-config.yml'))
     mock_check_site.assert_has_calls([
         mock.call('http://test-site-1', 8),
