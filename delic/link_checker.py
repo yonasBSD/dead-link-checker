@@ -133,6 +133,7 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
     if req.status_code >= 400:
         link.status = f"{req.status_code} - {responses[req.status_code]}"
         broken_links.append(link)
+        return
 
     # Link is HTML page and is internal
     # Fetch and parse page

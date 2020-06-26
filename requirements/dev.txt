@@ -4,3 +4,4 @@
 # Tests
 pytest
 pytest-cov
+responses

@@ -1,10 +1,12 @@
 '''Unit tests for link_checker'''
 
+import logging
 from unittest import mock
 
 import pytest
+import responses
 
-from delic.link_checker import DelicHTMLParser
+from delic.link_checker import DelicHTMLParser, check_site, check_link
 from delic.models import Link
 
 
@@ -108,3 +110,161 @@ def test_delic_html_parser_url_already_checked():
 
     # Assert results
     link_queue.put.assert_not_called()
+
+
+# =================================================
+# =                   check_site                  =
+# =================================================
+
+# FIX_ME
+
+# =================================================
+# =                   check_link                  =
+# =================================================
+STATUS_SUCCESS_MAP = [
+    (200, True),
+    (400, False),
+    (401, False),
+    (500, False),
+]
+
+
+@pytest.mark.parametrize('status,success', STATUS_SUCCESS_MAP)
+@mock.patch('delic.link_checker.DelicHTMLParser')
+@responses.activate
+def test_check_link_internal_html_page(mock_parser, status, success):
+    '''Internal HTML pages should be fetched and fed to parser'''
+    # Setup Requests mock
+    url = 'http://example.com/test.html'
+    responses.add(responses.HEAD, url, status=status, content_type='text/html')
+    responses.add(responses.GET, url, body='test-html-page', status=200)
+
+    # Setup mocks
+    broken_links = []
+    mock_parser_instance = mock_parser.return_value
+
+    # Call function
+    link = Link(
+        page='http://example.com/index.html',
+        url=url,
+    )
+    check_link(
+        link_queue=None,
+        checked_urls=[],
+        broken_links=broken_links,
+        base_url='http://example.com',
+        link=link,
+    )
+
+    # Assert results
+    if success:
+        assert len(broken_links) == 0
+        mock_parser_instance.feed.assert_called_with('test-html-page')
+    else:
+        assert len(broken_links) == 1
+        assert str(status) in broken_links[0].status
+        mock_parser_instance.feed.assert_not_called()
+
+
+@pytest.mark.parametrize('status,success', STATUS_SUCCESS_MAP)
+@mock.patch('delic.link_checker.DelicHTMLParser')
+@responses.activate
+def test_check_link_internal_other(mock_parser, status, success):
+    '''Other links should only be checked with HEAD'''
+    # Setup Requests mock
+    url = 'http://example.com/test.html'
+    responses.add(responses.HEAD, url, status=status,
+                  content_type='image/jpeg')
+
+    # Setup mocks
+    broken_links = []
+    mock_parser_instance = mock_parser.return_value
+
+    # Call function
+    check_link(
+        link_queue=None,
+        checked_urls=[],
+        broken_links=broken_links,
+        base_url='http://example.com',
+        link=Link(
+            page='http://example.com/index.html',
+            url=url,
+        ),
+    )
+
+    # Assert results
+    mock_parser_instance.feed.assert_not_called()
+    if success:
+        assert len(broken_links) == 0
+    else:
+        assert len(broken_links) == 1
+        assert str(status) in broken_links[0].status
+
+
+@pytest.mark.parametrize('status,success', STATUS_SUCCESS_MAP)
+@mock.patch('delic.link_checker.DelicHTMLParser')
+@responses.activate
+def test_check_link_external_html_page(mock_parser, status, success):
+    '''External HTML pages should only be checked with HEAD'''
+    # Setup Requests mock
+    url = 'http://external.com'
+    responses.add(responses.HEAD, url, status=status, content_type='text/html')
+
+    # Setup mocks
+    broken_links = []
+    mock_parser_instance = mock_parser.return_value
+
+    # Call function
+    check_link(
+        link_queue=None,
+        checked_urls=[],
+        broken_links=broken_links,
+        base_url='http://example.com',
+        link=Link(
+            page='http://example.com/index.html',
+            url=url,
+        ),
+    )
+
+    # Assert results
+    mock_parser_instance.feed.assert_not_called()
+    if success:
+        assert len(broken_links) == 0
+    else:
+        assert len(broken_links) == 1
+        assert str(status) in broken_links[0].status
+
+
+@pytest.mark.parametrize('status,success', STATUS_SUCCESS_MAP)
+@mock.patch('delic.link_checker.DelicHTMLParser')
+@responses.activate
+def test_check_link_retry_with_get(mock_parser, status, success):
+    '''Should retry with GET when HEAD returns 405 (Method not allowed)'''
+    # Setup Requests mock
+    url = 'http://example.com/test.html'
+    responses.add(responses.HEAD, url, status=405)
+    responses.add(responses.GET, url, status=status)
+
+    # Setup mocks
+    broken_links = []
+    mock_parser_instance = mock_parser.return_value
+
+    # Call function
+    check_link(
+        link_queue=None,
+        checked_urls=[],
+        broken_links=broken_links,
+        base_url='http://example.com',
+        link=Link(
+            page='http://example.com/index.html',
+            url=url,
+        ),
+    )
+
+    # Assert results
+    mock_parser_instance.feed.assert_not_called()
+    if success:
+        assert len(broken_links) == 0
+    else:
+        assert len(broken_links) == 1
+        assert str(status) in broken_links[0].status
