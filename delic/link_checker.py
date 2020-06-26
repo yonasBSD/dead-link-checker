@@ -35,11 +35,10 @@ REQUESTS_HEADERS = {
 
 
 class DelicHTMLParser(HTMLParser):
-    def __init__(self, link_queue, checked_urls, base_url, page):
+    def __init__(self, link_queue, checked_urls, page):
         super().__init__()
         self.link_queue = link_queue
         self.checked_urls = checked_urls
-        self.base_url = base_url
         self.page = page
 
     def handle_starttag(self, tag, attrs):
@@ -54,7 +53,7 @@ class DelicHTMLParser(HTMLParser):
                     continue  # Ignore url
 
                 # Extract url
-                target_url = urljoin(self.base_url, attr_value)
+                target_url = urljoin(self.page, attr_value)
                 cleaned_url = target_url.split('#')[0]
 
                 # Add url to queue
@@ -120,8 +119,7 @@ def check_site(base_url, workers_count) -> SiteResult:
 def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
     '''Check a single link'''
     # Create parser
-    parser = DelicHTMLParser(link_queue, checked_urls,
-                             base_url, link.url)
+    parser = DelicHTMLParser(link_queue, checked_urls, link.url)
 
     # Fetch header
     logging.info('Checking URL: %s', link.url)
