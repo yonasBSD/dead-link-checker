@@ -11,6 +11,7 @@ Dead link checker written in Python
 ```yaml
 verbose: False # Optional
 workers_per_site: 8 # Optional
+internal_links_only: False # Optional
 
 cron: "0 0 * * *" # Optional, run every night
 
