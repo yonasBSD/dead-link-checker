@@ -6,8 +6,8 @@ from unittest import mock
 import pytest
 import responses
 
-from delic.link_checker import DelicHTMLParser, check_site, check_link
-from delic.models import Link
+from delic.link_checker import DelicHTMLParser, check_site, check_link_worker, check_link
+from delic.models import Link, SiteResult, SiteResultSummary, SiteResultDetails
 
 
 # =================================================
@@ -115,8 +115,49 @@ def test_delic_html_parser_url_already_checked():
 # =================================================
 # =                   check_site                  =
 # =================================================
+@mock.patch('delic.link_checker.threading.Thread')
+@mock.patch('delic.link_checker.queue.Queue')
+def test_check_site(mock_queue, mock_thread):
+    '''Should start the worker threads and feed initial link to queue'''
+    # Setup mocks
+    mock_queue_instance: mock.MagicMock = mock_queue.return_value
+    mock_thread_instance: mock.MagicMock = mock_thread.return_value
 
-# FIX_ME
+    # Call function
+    result = check_site('http://example.com', 4)
+
+    # Expected result
+    expected = SiteResult(
+        site='http://example.com',
+        summary=SiteResultSummary(
+            urls_checked=0,
+            urls_broken=0,
+        ),
+        details=SiteResultDetails(
+            broken=[],
+        ),
+    )
+
+    # Assert results
+    assert mock_thread.call_count == 4
+    assert mock_thread.call_args_list == 4 * [mock.call(
+        target=check_link_worker,
+        args=(mock_queue_instance, [], [], 'http://example.com'),
+        daemon=True,
+    )]
+    assert mock_thread_instance.start.call_count == 4
+    mock_queue_instance.put.assert_called_with(Link(
+        page='',
+        url='http://example.com',
+    ))
+    mock_queue_instance.join.assert_called_with()
+
+
+# =================================================
+# =               check_link_worker               =
+# =================================================
+
+# Fix_ME
 
 # =================================================
 # =                   check_link                  =

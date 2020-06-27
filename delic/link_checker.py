@@ -76,22 +76,13 @@ def check_site(base_url, workers_count) -> SiteResult:
     msg = "Start link checking with %s workers for %s"
     logging.info(msg, workers_count, base_url)
 
-    # Define worker
-    def check_link_worker():
-        while True:
-            link = link_queue.get()
-            if link.url not in checked_urls:
-                checked_urls.append(link.url)
-                check_link(link_queue,
-                           checked_urls,
-                           broken_links,
-                           base_url,
-                           link)
-            link_queue.task_done()
-
     # Start worker thread
     for _ in range(workers_count):
-        threading.Thread(target=check_link_worker, daemon=True).start()
+        threading.Thread(
+            target=check_link_worker,
+            args=(link_queue, checked_urls, broken_links, base_url),
+            daemon=True,
+        ).start()
 
     # Queue base URL
     base_link = Link(
@@ -114,6 +105,20 @@ def check_site(base_url, workers_count) -> SiteResult:
             broken=broken_links,
         ),
     )
+
+
+def check_link_worker(link_queue, checked_urls, broken_links, base_url):
+    '''Worker for check_link'''
+    while True:
+        link = link_queue.get()
+        if link.url not in checked_urls:
+            checked_urls.append(link.url)
+            check_link(link_queue,
+                       checked_urls,
+                       broken_links,
+                       base_url,
+                       link)
+        link_queue.task_done()
 
 
 def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
