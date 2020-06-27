@@ -1,6 +1,7 @@
 '''Unit tests for link_checker'''
 
 import logging
+from queue import Empty
 from unittest import mock
 
 import pytest
@@ -156,8 +157,35 @@ def test_check_site(mock_queue, mock_thread):
 # =================================================
 # =               check_link_worker               =
 # =================================================
+@mock.patch('delic.link_checker.check_link')
+def test_check_link_worker(mock_check_link):
+    '''Should get link from queue and call check_link'''
+    # Setup mocks
+    link_queue = mock.MagicMock()
+    link = Link(
+        page='http://example.com/index.html',
+        url='http://example.com/test.html',
+    )
+    link_queue.get.side_effect = [link, Empty]
+    checked_urls = []
 
-# Fix_ME
+    # Call worker
+    with pytest.raises(Empty):
+        check_link_worker(link_queue, checked_urls, [], 'http://example.com')
+
+    # Assert results
+    assert link_queue.get.call_count == 2
+    assert link_queue.task_done.call_count == 1
+    assert checked_urls == ['http://example.com/test.html']
+    assert mock_check_link.call_count == 1
+    mock_check_link.assert_called_with(
+        link_queue,
+        ['http://example.com/test.html'],
+        [],
+        'http://example.com',
+        link,
+    )
+
 
 # =================================================
 # =                   check_link                  =
