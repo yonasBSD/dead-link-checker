@@ -2,6 +2,7 @@
 
 import pytest
 import logging
+from argparse import Namespace
 
 from delic import config
 
@@ -38,8 +39,13 @@ def test_load_valid_config_file(tmp_path):
     yaml_file = tmp_path / "test-config.yml"
     yaml_file.write_text(yaml_content)
 
+    # Set args
+    args = Namespace(
+        verbose=False,
+    )
+
     # Try to load file
-    result = config.load_config_file(yaml_file)
+    result = config.load_config_file(yaml_file, args)
 
     # Expected result
     expected = {
@@ -54,6 +60,10 @@ def test_load_valid_config_file(tmp_path):
     assert result == expected
 
 
+@pytest.mark.parametrize('args,verbose_arg', [
+    (Namespace(verbose=True), True),
+    (Namespace(verbose=False), False),
+])
 @pytest.mark.parametrize('verbose_config, expected_verbose', [
     (False, False),
     (True, True),
@@ -69,7 +79,13 @@ def test_load_valid_config_file(tmp_path):
     (4, 4),
     ('A', 8),
 ])
-def test_load_valid_config_file(worker_config, expected_workers, verbose_config, expected_verbose, tmp_path):
+def test_load_valid_config_file(worker_config,
+                                expected_workers,
+                                verbose_config,
+                                expected_verbose,
+                                args,
+                                verbose_arg,
+                                tmp_path):
     '''Should read a YAML file and update with defaults'''
     # Write test file
     yaml_content = f'''
@@ -80,11 +96,11 @@ def test_load_valid_config_file(worker_config, expected_workers, verbose_config,
     yaml_file.write_text(yaml_content)
 
     # Try to load file
-    result = config.load_config_file(yaml_file)
+    result = config.load_config_file(yaml_file, args)
 
     # Expected result
     expected = {
-        'verbose': expected_verbose,
+        'verbose': verbose_arg or expected_verbose,
         'workers_per_site': expected_workers,
     }
 

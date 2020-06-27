@@ -89,7 +89,10 @@ def test_success_single_run(mock_parse_args: mock.MagicMock,
 
     # Assert results
     mock_parse_args.assert_called_with(mock.ANY)
-    mock_load_config.assert_called_with(Path('test-config.yml'))
+    mock_load_config.assert_called_with(
+        Path('test-config.yml'),
+        mock_parse_args.return_value,
+    )
     mock_check_site.assert_has_calls([
         mock.call('http://test-site-1', 11),
         mock.call('http://test-site-2', 11),
@@ -126,7 +129,10 @@ def test_success_scheduled(mock_parse_args: mock.MagicMock,
 
     # Assert results
     mock_parse_args.assert_called_with(mock.ANY)
-    mock_load_config.assert_called_with(Path('test-config.yml'))
+    mock_load_config.assert_called_with(
+        Path('test-config.yml'),
+        mock_parse_args.return_value,
+    )
     assert mock_scheduler_instance.add_job.call_count == 1
     scheduled_def, schedule = mock_scheduler_instance.add_job.call_args[0]
     assert isinstance(scheduled_def, types.FunctionType)
@@ -156,7 +162,10 @@ def test_success_no_notify_when_no_broken_links(mock_parse_args: mock.MagicMock,
 
     # Assert results
     mock_parse_args.assert_called_with(mock.ANY)
-    mock_load_config.assert_called_with(Path('test-config.yml'))
+    mock_load_config.assert_called_with(
+        Path('test-config.yml'),
+        mock_parse_args.return_value,
+    )
     mock_check_site.assert_has_calls([
         mock.call('http://test-site-1', 11),
         mock.call('http://test-site-2', 11),
@@ -187,6 +196,9 @@ def test_fail_config_file_not_found(mock_parse_args: mock.MagicMock,
 
     # Assert results
     mock_parse_args.assert_called_with(mock.ANY)
-    mock_load_config.assert_called_with(Path('test-config.yml'))
+    mock_load_config.assert_called_with(
+        Path('test-config.yml'),
+        mock_parse_args.return_value,
+    )
     mock_check_site.assert_not_called()
     mock_notify.assert_not_called()

@@ -28,15 +28,11 @@ def run():
     # Load config file
     try:
         config_path = Path(args.config)
-        config = load_config_file(config_path)
+        config = load_config_file(config_path, args)
     except FileNotFoundError:
         logging.error('Config file not found at path "%s"',
                       config_path.absolute())
         sys.exit(1)
-
-    # Set logging to INFO, if verbose is enabled
-    if args.verbose or config['verbose']:
-        logging.basicConfig(level=logging.INFO)
 
     # Run job once or start scheduler
     crontab = config.get('cron')
