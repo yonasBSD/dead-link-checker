@@ -34,6 +34,9 @@ def run():
                       config_path.absolute())
         sys.exit(1)
 
+    # Log config
+    logging.info('Config used: %s', config)
+
     # Run job once or start scheduler
     crontab = config.get('cron')
     if crontab:
@@ -54,7 +57,7 @@ def check_sites(config):
     results = SiteResultList()
     workers_count = config['workers_per_site']
     for site in config['sites']:
-        result = check_site(site, workers_count)
+        result = check_site(config, site, workers_count)
         results.__root__.append(result)
 
     # Print results

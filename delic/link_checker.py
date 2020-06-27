@@ -38,8 +38,10 @@ REQUESTS_ARGS = {
 
 
 class DelicHTMLParser(HTMLParser):
-    def __init__(self, link_queue, checked_urls, page):
+    def __init__(self, delic_config, base_url, link_queue, checked_urls, page):
         super().__init__()
+        self.delic_config = delic_config
+        self.base_url = base_url
         self.link_queue = link_queue
         self.checked_urls = checked_urls
         self.page = page
@@ -61,14 +63,15 @@ class DelicHTMLParser(HTMLParser):
 
                 # Add url to queue
                 if cleaned_url not in self.checked_urls:
-                    new_link = Link(
-                        url=cleaned_url,
-                        page=self.page,
-                    )
-                    self.link_queue.put(new_link)
+                    if not self.delic_config['internal_links_only'] or cleaned_url.startswith(self.base_url):
+                        new_link = Link(
+                            url=cleaned_url,
+                            page=self.page,
+                        )
+                        self.link_queue.put(new_link)
 
 
-def check_site(base_url, workers_count) -> SiteResult:
+def check_site(config, base_url, workers_count) -> SiteResult:
     '''Check all links of a single site'''
     # Init
     checked_urls: List[str] = []
@@ -83,7 +86,7 @@ def check_site(base_url, workers_count) -> SiteResult:
     for _ in range(workers_count):
         threading.Thread(
             target=check_link_worker,
-            args=(link_queue, checked_urls, broken_links, base_url),
+            args=(config, link_queue, checked_urls, broken_links, base_url),
             daemon=True,
         ).start()
 
@@ -110,14 +113,15 @@ def check_site(base_url, workers_count) -> SiteResult:
     )
 
 
-def check_link_worker(link_queue, checked_urls, broken_links, base_url):
+def check_link_worker(config, link_queue, checked_urls, broken_links, base_url):
     '''Worker for check_link'''
     while True:
         link = link_queue.get()
         if link.url not in checked_urls:
             checked_urls.append(link.url)
             try:
-                check_link(link_queue,
+                check_link(config,
+                           link_queue,
                            checked_urls,
                            broken_links,
                            base_url,
@@ -130,10 +134,16 @@ def check_link_worker(link_queue, checked_urls, broken_links, base_url):
         link_queue.task_done()
 
 
-def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
+def check_link(config, link_queue, checked_urls, broken_links, base_url, link: Link):
     '''Check a single link'''
     # Create parser
-    parser = DelicHTMLParser(link_queue, checked_urls, link.url)
+    parser = DelicHTMLParser(
+        config,
+        base_url,
+        link_queue,
+        checked_urls,
+        link.url,
+    )
 
     # Fetch header
     logging.info('Checking URL: %s', link.url)

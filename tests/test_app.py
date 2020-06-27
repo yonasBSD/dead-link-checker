@@ -53,6 +53,7 @@ def get_config_dict():
     return {
         'verbose': False,
         'workers_per_site': 11,
+        'internal_links_only': False,
         'sites': [
             'http://test-site-1',
             'http://test-site-2',
@@ -94,8 +95,8 @@ def test_success_single_run(mock_parse_args: mock.MagicMock,
         mock_parse_args.return_value,
     )
     mock_check_site.assert_has_calls([
-        mock.call('http://test-site-1', 11),
-        mock.call('http://test-site-2', 11),
+        mock.call(get_config_dict(), 'http://test-site-1', 11),
+        mock.call(get_config_dict(), 'http://test-site-2', 11),
     ])
     mock_check_site.call_count == 2
     expected_notify = get_check_site_result()
@@ -167,8 +168,8 @@ def test_success_no_notify_when_no_broken_links(mock_parse_args: mock.MagicMock,
         mock_parse_args.return_value,
     )
     mock_check_site.assert_has_calls([
-        mock.call('http://test-site-1', 11),
-        mock.call('http://test-site-2', 11),
+        mock.call(get_config_dict(), 'http://test-site-1', 11),
+        mock.call(get_config_dict(), 'http://test-site-2', 11),
     ])
     mock_check_site.call_count == 2
     mock_notify.assert_not_called()

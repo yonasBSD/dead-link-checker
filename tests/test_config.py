@@ -60,17 +60,22 @@ def test_load_valid_config_file(tmp_path):
     assert result == expected
 
 
+def get_boolean_map(default):
+    '''Return a boolean map with a default'''
+    return [
+        (False, False),
+        (True, True),
+        ('test', default),
+        (0, default),
+        (1, default),
+    ]
+
+
 @pytest.mark.parametrize('args,verbose_arg', [
     (Namespace(verbose=True), True),
     (Namespace(verbose=False), False),
 ])
-@pytest.mark.parametrize('verbose_config, expected_verbose', [
-    (False, False),
-    (True, True),
-    ('test', True),
-    (0, True),
-    (1, True),
-])
+@pytest.mark.parametrize('verbose_config, expected_verbose', get_boolean_map(True))
 @pytest.mark.parametrize('worker_config, expected_workers', [
     (-10, 8),
     (-1, 8),
@@ -79,7 +84,10 @@ def test_load_valid_config_file(tmp_path):
     (4, 4),
     ('A', 8),
 ])
-def test_load_valid_config_file(worker_config,
+@pytest.mark.parametrize('internal_only_config, expected_internal_only', get_boolean_map(False))
+def test_load_valid_config_file(internal_only_config,
+                                expected_internal_only,
+                                worker_config,
                                 expected_workers,
                                 verbose_config,
                                 expected_verbose,
@@ -91,6 +99,7 @@ def test_load_valid_config_file(worker_config,
     yaml_content = f'''
                     verbose: {verbose_config}
                     workers_per_site: {worker_config}
+                    internal_links_only: {internal_only_config}
                     '''
     yaml_file = tmp_path / "test-config.yml"
     yaml_file.write_text(yaml_content)
@@ -102,6 +111,7 @@ def test_load_valid_config_file(worker_config,
     expected = {
         'verbose': verbose_arg or expected_verbose,
         'workers_per_site': expected_workers,
+        'internal_links_only': expected_internal_only
     }
 
     # Assert result

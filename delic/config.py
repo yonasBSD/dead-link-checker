@@ -21,6 +21,7 @@ def load_config_file(path: Path, args) -> Dict:
     # Set defaults
     config['verbose'] = True if args.verbose else config.get('verbose', False)
     config['workers_per_site'] = config.get('workers_per_site', 8)
+    config['internal_links_only'] = config.get('internal_links_only', False)
 
     # Validate verbose
     if isinstance(config['verbose'], bool):
@@ -33,9 +34,12 @@ def load_config_file(path: Path, args) -> Dict:
 
     # Validate workers_per_site
     if not isinstance(config['workers_per_site'], int) or config['workers_per_site'] < 1:
-        logging.warning('Invalid number of workers: "%s". Defaulted to 8 workers.',
+        logging.warning('Invalid number of workers: %s. Defaulted to 8 workers.',
                         config['workers_per_site'])
         config['workers_per_site'] = 8
+
+    # Validate internal_links_only
+    validate_bool(config, 'internal_links_only', False)
 
     # Return result
     return config
@@ -45,3 +49,13 @@ def set_log_level(verbose):
     '''Set logging to INFO, if verbose is enabled'''
     if verbose:
         logging.basicConfig(level=logging.INFO)
+
+
+def validate_bool(config, key, default):
+    '''Validate if key is a bool. If not, show warning and set default'''
+    if not isinstance(config[key], bool):
+        logging.warning('%s is not a bool: %s. Defaulted to %s.',
+                        key,
+                        config[key],
+                        default)
+        config[key] = default

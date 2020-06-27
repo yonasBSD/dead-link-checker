@@ -13,6 +13,16 @@ from delic.models import Link, SiteResult, SiteResultSummary, SiteResultDetails
 
 
 # =================================================
+# =                     Common                    =
+# =================================================
+def get_test_config():
+    '''Return a minimal config for testing'''
+    return {
+        'internal_links_only': False
+    }
+
+
+# =================================================
 # =                DelicHTMLParser                =
 # =================================================
 @pytest.mark.parametrize('tag,attr,tag_accepted', [
@@ -46,6 +56,8 @@ def test_delic_html_parser_absolute_url(schema, schema_accepted, tag, attr, tag_
 
     # Call parser
     parser = DelicHTMLParser(
+        delic_config=get_test_config(),
+        base_url='http://example.com',
         link_queue=link_queue,
         checked_urls=checked_urls,
         page='http://example.com/test.html',
@@ -79,6 +91,8 @@ def test_delic_html_parser_relative_url(link, expected_url):
 
     # Call parser
     parser = DelicHTMLParser(
+        delic_config=get_test_config(),
+        base_url='http://example.com',
         link_queue=link_queue,
         checked_urls=checked_urls,
         page='http://example.com/subfolder/index.html',
@@ -104,6 +118,33 @@ def test_delic_html_parser_url_already_checked():
 
     # Call parser
     parser = DelicHTMLParser(
+        delic_config=get_test_config(),
+        base_url='http://example.com',
+        link_queue=link_queue,
+        checked_urls=checked_urls,
+        page='http://example.com/index.html',
+    )
+    parser.feed(html_snippet)
+
+    # Assert results
+    link_queue.put.assert_not_called()
+
+
+def test_delic_html_parser_external_url_while_internal_only():
+    '''External urls should be ingore when internal_links_only is enabled'''
+    # Setup mocks
+    link_queue = mock.MagicMock()
+    checked_urls = []
+
+    # Setup test data
+    config = get_test_config()
+    config['internal_links_only'] = True
+    html_snippet = f'<a href="http://external.com/test.html">Test</a>'
+
+    # Call parser
+    parser = DelicHTMLParser(
+        delic_config=config,
+        base_url='http://example.com',
         link_queue=link_queue,
         checked_urls=checked_urls,
         page='http://example.com/index.html',
@@ -126,7 +167,7 @@ def test_check_site(mock_queue, mock_thread):
     mock_thread_instance: mock.MagicMock = mock_thread.return_value
 
     # Call function
-    result = check_site('http://example.com', 4)
+    result = check_site(get_test_config(), 'http://example.com', 4)
 
     # Expected result
     expected = SiteResult(
@@ -144,7 +185,13 @@ def test_check_site(mock_queue, mock_thread):
     assert mock_thread.call_count == 4
     assert mock_thread.call_args_list == 4 * [mock.call(
         target=check_link_worker,
-        args=(mock_queue_instance, [], [], 'http://example.com'),
+        args=(
+            get_test_config(),
+            mock_queue_instance,
+            [],
+            [],
+            'http://example.com',
+        ),
         daemon=True,
     )]
     assert mock_thread_instance.start.call_count == 4
@@ -172,7 +219,13 @@ def test_check_link_worker_success(mock_check_link):
 
     # Call worker
     with pytest.raises(Empty):
-        check_link_worker(link_queue, checked_urls, [], 'http://example.com')
+        check_link_worker(
+            get_test_config(),
+            link_queue,
+            checked_urls,
+            [],
+            'http://example.com',
+        )
 
     # Assert results
     assert link_queue.get.call_count == 2
@@ -180,6 +233,7 @@ def test_check_link_worker_success(mock_check_link):
     assert checked_urls == ['http://example.com/test.html']
     assert mock_check_link.call_count == 1
     mock_check_link.assert_called_with(
+        get_test_config(),
         link_queue,
         ['http://example.com/test.html'],
         [],
@@ -208,6 +262,7 @@ def test_check_link_worker_fail(mock_check_link):
     # Call worker
     with pytest.raises(Empty):
         check_link_worker(
+            get_test_config(),
             link_queue,
             checked_urls,
             broken_links,
@@ -222,6 +277,7 @@ def test_check_link_worker_fail(mock_check_link):
     assert 'test-request-exception' in broken_links[0].status
     assert mock_check_link.call_count == 1
     mock_check_link.assert_called_with(
+        get_test_config(),
         link_queue,
         ['http://example.com/test.html'],
         mock.ANY,
@@ -262,6 +318,7 @@ def test_check_link_internal_html_page(mock_parser, status, success):
         url=url,
     )
     check_link(
+        config=get_test_config(),
         link_queue=None,
         checked_urls=[],
         broken_links=broken_links,
@@ -295,6 +352,7 @@ def test_check_link_internal_other(mock_parser, status, success):
 
     # Call function
     check_link(
+        config=get_test_config(),
         link_queue=None,
         checked_urls=[],
         broken_links=broken_links,
@@ -329,6 +387,7 @@ def test_check_link_external_html_page(mock_parser, status, success):
 
     # Call function
     check_link(
+        config=get_test_config(),
         link_queue=None,
         checked_urls=[],
         broken_links=broken_links,
@@ -364,6 +423,7 @@ def test_check_link_retry_with_get(mock_parser, status, success):
 
     # Call function
     check_link(
+        config=get_test_config(),
         link_queue=None,
         checked_urls=[],
         broken_links=broken_links,
@@ -397,6 +457,7 @@ def test_check_link_invalid_status_code(mock_parser):
 
     # Call function
     check_link(
+        config=get_test_config(),
         link_queue=None,
         checked_urls=[],
         broken_links=broken_links,
