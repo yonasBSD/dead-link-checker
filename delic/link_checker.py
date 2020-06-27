@@ -29,8 +29,11 @@ IGNORED_SCHEMAS = (
     'tel:',
 )
 
-REQUESTS_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0',
+REQUESTS_ARGS = {
+    'timeout': 10,
+    'headers': {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:77.0) Gecko/20100101 Firefox/77.0',
+    }
 }
 
 
@@ -113,11 +116,17 @@ def check_link_worker(link_queue, checked_urls, broken_links, base_url):
         link = link_queue.get()
         if link.url not in checked_urls:
             checked_urls.append(link.url)
-            check_link(link_queue,
-                       checked_urls,
-                       broken_links,
-                       base_url,
-                       link)
+            try:
+                check_link(link_queue,
+                           checked_urls,
+                           broken_links,
+                           base_url,
+                           link)
+            except requests.RequestException as e:
+                broken_link = link.copy()
+                broken_link.status = str(e)
+                broken_links.append(broken_link)
+
         link_queue.task_done()
 
 
@@ -128,15 +137,15 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
 
     # Fetch header
     logging.info('Checking URL: %s', link.url)
-    req = requests.head(link.url, headers=REQUESTS_HEADERS)
+    req = requests.head(link.url, **REQUESTS_ARGS)
 
     # Retry with GET if method not allowed
     if req.status_code == requests.codes.method_not_allowed:
-        req = requests.get(link.url, headers=REQUESTS_HEADERS)
+        req = requests.get(link.url, **REQUESTS_ARGS)
 
     # Check status of request
     if req.status_code >= 400:
-        link.status = f"{req.status_code} - {responses[req.status_code]}"
+        link.status = f"{req.status_code} - {responses.get(req.status_code, req.text)}"
         broken_links.append(link)
         return
 
@@ -144,5 +153,5 @@ def check_link(link_queue, checked_urls, broken_links, base_url, link: Link):
     # Fetch and parse page
     content_type = req.headers.get('content-type', '')
     if content_type.startswith('text/html') and link.url.startswith(base_url):
-        req_html = requests.get(link.url, headers=REQUESTS_HEADERS)
+        req_html = requests.get(link.url, **REQUESTS_ARGS)
         parser.feed(req_html.text)

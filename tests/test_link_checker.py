@@ -6,6 +6,7 @@ from unittest import mock
 
 import pytest
 import responses
+from requests import RequestException
 
 from delic.link_checker import DelicHTMLParser, check_site, check_link_worker, check_link
 from delic.models import Link, SiteResult, SiteResultSummary, SiteResultDetails
@@ -158,7 +159,7 @@ def test_check_site(mock_queue, mock_thread):
 # =               check_link_worker               =
 # =================================================
 @mock.patch('delic.link_checker.check_link')
-def test_check_link_worker(mock_check_link):
+def test_check_link_worker_success(mock_check_link):
     '''Should get link from queue and call check_link'''
     # Setup mocks
     link_queue = mock.MagicMock()
@@ -187,6 +188,48 @@ def test_check_link_worker(mock_check_link):
     )
 
 
+@mock.patch('delic.link_checker.check_link')
+def test_check_link_worker_fail(mock_check_link):
+    '''Should handle RequestException raised by Requests'''
+    # Setup mocks
+    link_queue = mock.MagicMock()
+    link = Link(
+        page='http://example.com/index.html',
+        url='http://example.com/test.html',
+    )
+    link_queue.get.side_effect = [link.copy(), Empty]
+    mock_check_link.side_effect = RequestException(
+        999,
+        'test-request-exception',
+    )
+    checked_urls = []
+    broken_links = []
+
+    # Call worker
+    with pytest.raises(Empty):
+        check_link_worker(
+            link_queue,
+            checked_urls,
+            broken_links,
+            'http://example.com',
+        )
+
+    # Assert results
+    assert link_queue.get.call_count == 2
+    assert link_queue.task_done.call_count == 1
+    assert checked_urls == ['http://example.com/test.html']
+    assert len(broken_links) == 1
+    assert 'test-request-exception' in broken_links[0].status
+    assert mock_check_link.call_count == 1
+    mock_check_link.assert_called_with(
+        link_queue,
+        ['http://example.com/test.html'],
+        mock.ANY,
+        'http://example.com',
+        link,
+    )
+
+
 # =================================================
 # =                   check_link                  =
 # =================================================
@@ -195,6 +238,7 @@ STATUS_SUCCESS_MAP = [
     (400, False),
     (401, False),
     (500, False),
+    (999, False),
 ]
 
 
@@ -337,3 +381,34 @@ def test_check_link_retry_with_get(mock_parser, status, success):
     else:
         assert len(broken_links) == 1
         assert str(status) in broken_links[0].status
+
+
+@mock.patch('delic.link_checker.DelicHTMLParser')
+@responses.activate
+def test_check_link_invalid_status_code(mock_parser):
+    '''Invalid status codes should be printed as-is'''
+    # Setup Requests mock
+    url = 'http://example.com/test.html'
+    responses.add(responses.HEAD, url, status=999, body='test-invalid-status')
+
+    # Setup mocks
+    broken_links = []
+    mock_parser_instance = mock_parser.return_value
+
+    # Call function
+    check_link(
+        link_queue=None,
+        checked_urls=[],
+        broken_links=broken_links,
+        base_url='http://example.com',
+        link=Link(
+            page='http://example.com/index.html',
+            url=url,
+        ),
+    )
+
+    # Assert results
+    mock_parser_instance.feed.assert_not_called()
+    assert len(broken_links) == 1
+    assert '999' in broken_links[0].status
+    assert 'test-invalid-status' in broken_links[0].status
