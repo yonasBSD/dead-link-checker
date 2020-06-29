@@ -107,6 +107,38 @@ def test_delic_html_parser_relative_url(link, expected_url):
     link_queue.put.assert_called_with(expected_link)
 
 
+def test_delic_html_parser_srcset():
+    '''Test parsing of srcset attributes'''
+    # Setup mocks
+    link_queue = mock.MagicMock()
+    checked_urls = []
+
+    # Setup test data
+    html_snippet = f'<img srcset="/test.png 500w, /test2.png 1000w" />'
+
+    # Call parser
+    parser = DelicHTMLParser(
+        delic_config=get_test_config(),
+        base_url='http://example.com',
+        link_queue=link_queue,
+        checked_urls=checked_urls,
+        page='http://example.com/subfolder/index.html',
+    )
+    parser.feed(html_snippet)
+
+    # Assert results
+    link_queue.put.assert_has_calls([
+        mock.call(Link(
+            page='http://example.com/subfolder/index.html',
+            url='http://example.com/test.png'
+        )),
+        mock.call(Link(
+            page='http://example.com/subfolder/index.html',
+            url='http://example.com/test2.png'
+        )),
+    ])
+
+
 def test_delic_html_parser_url_already_checked():
     '''Already checked urls should be ignored'''
     # Setup mocks

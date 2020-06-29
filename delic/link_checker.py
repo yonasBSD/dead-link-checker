@@ -48,27 +48,38 @@ class DelicHTMLParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if tag in LINK_TAGS:
-            attr_values = (attr[1]
-                           for attr
-                           in attrs
-                           if attr[0] in LINK_TAGS[tag])
-            for attr_value in attr_values:
+            for attr_key, attr_value in attrs:
+                # Check if attribute is ignored
+                if attr_key not in LINK_TAGS[tag]:
+                    continue  # Ignore attribute
+
                 # Check if schema is ignored
                 if attr_value.startswith(IGNORED_SCHEMAS):
                     continue  # Ignore url
 
-                # Extract url
-                target_url = urljoin(self.page, attr_value)
-                cleaned_url = target_url.split('#')[0]
+                # Split urls if srcset
+                urls_to_check = []
+                if attr_key != "srcset":
+                    urls_to_check.append(attr_value)
+                else:
+                    srcset_items = attr_value.split(',')
+                    for srcset_item in srcset_items:
+                        url_part = srcset_item.strip().split(' ')[0]
+                        urls_to_check.append(url_part)
 
-                # Add url to queue
-                if cleaned_url not in self.checked_urls:
-                    if not self.delic_config['internal_links_only'] or cleaned_url.startswith(self.base_url):
-                        new_link = Link(
-                            url=cleaned_url,
-                            page=self.page,
-                        )
-                        self.link_queue.put(new_link)
+                for url in urls_to_check:
+                    # Extract url
+                    target_url = urljoin(self.page, url)
+                    cleaned_url = target_url.split('#')[0]
+
+                    # Add url to queue
+                    if cleaned_url not in self.checked_urls:
+                        if not self.delic_config['internal_links_only'] or cleaned_url.startswith(self.base_url):
+                            new_link = Link(
+                                url=cleaned_url,
+                                page=self.page,
+                            )
+                            self.link_queue.put(new_link)
 
 
 def check_site(config, base_url, workers_count) -> SiteResult:
