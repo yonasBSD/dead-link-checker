@@ -2,6 +2,9 @@ name: Test, build and publish
 on:
   push:
     branches: [master]
+  schedule:
+    # Rebuild weekly using latest python:3 image
+    - cron:  '* * * * 1'
 
 env:
   DOCKER_HUB_USER: jenswbebot
