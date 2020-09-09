@@ -3,7 +3,7 @@ on:
   push:
     branches: [master]
   schedule:
-    # Rebuild weekly using latest python:3 image
+    # Rebuild weekly using latest python:3.8 image
     - cron:  '* * * * 1'
 
 env:
