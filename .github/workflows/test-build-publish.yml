@@ -4,7 +4,7 @@ on:
     branches: [master]
   schedule:
     # Rebuild weekly using latest python:3.8 image
-    - cron:  '* * * * 1'
+    - cron:  '0 0 * * 1'
 
 env:
   DOCKER_HUB_USER: jenswbebot
