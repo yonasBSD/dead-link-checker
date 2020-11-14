@@ -1,4 +1,4 @@
-![Build multi arch Docker](https://github.com/JenswBE/python-dead-link-checker/workflows/Build%20multi%20arch%20Docker/badge.svg)
+[![Build multi arch Docker](https://github.com/JenswBE/python-dead-link-checker/workflows/Build%20multi%20arch%20Docker/badge.svg)](https://github.com/JenswBE/python-dead-link-checker)
 [![codecov](https://codecov.io/gh/JenswBE/python-dead-link-checker/branch/master/graph/badge.svg)](https://codecov.io/gh/JenswBE/python-dead-link-checker)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenswbe/dead-link-checker)](https://hub.docker.com/repository/docker/jenswbe/dead-link-checker)
 
