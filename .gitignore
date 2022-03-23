@@ -9,6 +9,7 @@
 !/requirements.txt
 
 !/.github/
+!/.github/dependabot.yml
 !/.github/workflows/
 !/.github/workflows/test-build-publish.yml
 
