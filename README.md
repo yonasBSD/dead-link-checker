@@ -1,3 +1,9 @@
+# TODO
+
+- `LinksCountTotal` doesn't contain ignored scheme's and links.
+
+# Old
+
 [![Build multi arch Docker](https://github.com/JenswBE/python-dead-link-checker/workflows/Build%20multi%20arch%20Docker/badge.svg)](https://github.com/JenswBE/python-dead-link-checker)
 [![codecov](https://codecov.io/gh/JenswBE/python-dead-link-checker/branch/master/graph/badge.svg)](https://codecov.io/gh/JenswBE/python-dead-link-checker)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenswbe/dead-link-checker)](https://hub.docker.com/r/jenswbe/dead-link-checker)
@@ -9,14 +15,14 @@ Dead link checker written in Python
 ## 1. Config
 
 ```yaml
-verbose: False # Optional
-workers_per_site: 8 # Optional
-internal_links_only: False # Optional
+verbose: False # Optional, can also be set as environment variable VERBOSE
 
 cron: "0 0 * * *" # Optional, run every night
 
 sites:
-  - https://jensw.be
+  - url: https://jensw.be
+    ignored_links: # Optional, list of regex's which should be ignored
+      - ^https://jensw.be/don't-visit-me.*
 
 notify: # Optional, example for Mailjet using SMTP
   provider: email
@@ -43,6 +49,7 @@ docker run -v /path/to/config.yml:/config.yml jenswbe/dead-link-checker
 ```
 
 ## 3. CLI arguments
+
 ```
 -c, --config    Location of the config file
 -v, --verbose   Enable verbose output

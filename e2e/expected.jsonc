@@ -1,0 +1,190 @@
+// This file used for test assertion. Should be manually rechecked on any changes.
+
+{
+    "http://localhost:9080": {
+        "Statistics": {
+            "LinksCountTotal": 51,
+            "LinksCountByPageURL": {
+                "http://localhost:9080": 5,
+                "http://localhost:9080/": 5,
+                "http://localhost:9080/tag_a.html": 7,
+                "http://localhost:9080/tag_img.html": 26,
+                "http://localhost:9080/tag_link.html": 2,
+                "http://localhost:9080/tag_picture_source.html": 4,
+                "http://localhost:9080/tag_script.html": 2
+            }
+        },
+        "BrokenLinksByPageURL": {
+            "http://localhost:9080/tag_a.html": [
+                {
+                    "LinkValue": "./not_found.html",
+                    "AbsoluteURL": "http://localhost:9080/not_found.html",
+                    "Tag": "a",
+                    "TagContent": "404 relative",
+                    "Attribute": "href",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "http://localhost:9080/not_found.html",
+                    "AbsoluteURL": "http://localhost:9080/not_found.html",
+                    "Tag": "a",
+                    "TagContent": "404 absolute",
+                    "Attribute": "href",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "http://localhost:9081/not_found.html",
+                    "AbsoluteURL": "http://localhost:9081/not_found.html",
+                    "Tag": "a",
+                    "TagContent": "External 404",
+                    "Attribute": "href",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                }
+            ],
+            "http://localhost:9080/tag_img.html": [
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-11",
+                    "Attribute": "srcset",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 2
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-10",
+                    "Attribute": "src",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-11",
+                    "Attribute": "src",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-6",
+                    "Attribute": "srcset",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-10",
+                    "Attribute": "srcset",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-9",
+                    "Attribute": "srcset",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 2
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-4",
+                    "Attribute": "src",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-5",
+                    "Attribute": "src",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-7",
+                    "Attribute": "srcset",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 2
+                },
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "img",
+                    "TagContent": "test-img-8",
+                    "Attribute": "srcset",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                }
+            ],
+            "http://localhost:9080/tag_link.html": [
+                {
+                    "LinkValue": "not_found.css",
+                    "AbsoluteURL": "http://localhost:9080/not_found.css",
+                    "Tag": "link",
+                    "TagContent": "",
+                    "Attribute": "href",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                }
+            ],
+            "http://localhost:9080/tag_picture_source.html": [
+                {
+                    "LinkValue": "not_found.gif",
+                    "AbsoluteURL": "http://localhost:9080/not_found.gif",
+                    "Tag": "source",
+                    "TagContent": "",
+                    "Attribute": "srcset",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                }
+            ],
+            "http://localhost:9080/tag_script.html": [
+                {
+                    "LinkValue": "not_found.js",
+                    "AbsoluteURL": "http://localhost:9080/not_found.js",
+                    "Tag": "script",
+                    "TagContent": "",
+                    "Attribute": "src",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                }
+            ]
+        }
+    }
+}

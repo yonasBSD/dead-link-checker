@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <p>
+      <p><a href="/">Home relative</a></p>
+      <p><a href="http://localhost:9080/">Home absolute</a></p>
+  
+      <p><a href="./not_found.html">404 relative</a></p>
+      <p><a href="http://localhost:9080/not_found.html">404 absolute</a></p>
+  
+      <p><a href="http://localhost:9081">External index</a></p>
+      <p><a href="http://localhost:9081/not_found.html">External 404</a></p>
+  
+      <p><a href="mailto:test@example.com">Skip ignored schemes</a></p>
+
+      <p><a href="http://localhost:9082/some-page">Skip ignored URL's</a></p>
+    </p>
+  </body>
+</html>

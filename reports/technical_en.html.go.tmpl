@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report</title>
+  </head>
+  <body>
+    <p>Broken links detected on following pages:</p>
+
+    <ul>
+      {{ range $siteURL, $report := . }}
+        <li>
+          <p>
+            Site: <a href="{{ $siteURL }}" target="_blank">{{ $siteURL }}</a>
+          </p>
+          <ul>
+            {{ range $pageURL, $brokenLinks := $report.BrokenLinksByPageURL }}
+              <li>
+                <p>
+                  Page:
+                  <a href="{{ $pageURL }}" target="_blank">{{ $pageURL }}</a>
+                </p>
+                <ul>
+                  {{ range $brokenLinks }}
+                    <li>
+                      {{ if .IsTagTextTypeAttribute }}
+                        &lt;{{ .Tag }} {{ .Attribute }}="{{ .LinkValue }}"
+                        {{ .TagTextKey }}="{{ .TagTextValue }}"/&gt;:
+                        {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ else if .IsTagTextTypeContent }}
+                        &lt;{{ .Tag }}
+                        {{ .Attribute }}="{{ .LinkValue }}"&gt;{{ .TagTextValue }}&lt;/{{ .Tag }}&gt;:
+                        {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ else }}
+                        &lt;{{ .Tag }} {{ .Attribute }}="{{ .LinkValue }}"&gt;:
+                        {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ end }}
+                    </li>
+                  {{ end }}
+                </ul>
+              </li>
+            {{ end }}
+          </ul>
+        </li>
+      {{ end }}
+    </ul>
+  </body>
+</html>
