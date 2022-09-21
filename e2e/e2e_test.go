@@ -3,6 +3,7 @@
 package test
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"strings"
@@ -21,7 +22,7 @@ func TestE2E(t *testing.T) {
 
 	// Check website
 	manager := internal.NewManager()
-	actual := manager.Run(delicConfig)
+	actual := manager.Run(context.Background(), delicConfig)
 
 	// Load expected
 	expectedFile := mustV(os.Open("./expected.jsonc"))

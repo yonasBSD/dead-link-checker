@@ -18,7 +18,8 @@ import (
 
 func main() {
 	// Parse flags
-	verbose := flag.BoolP("verbose", "v", false, "Enables verbose output. Will be enabled if either this flag, config option or env var is provided.")
+	verbose := flag.BoolP("verbose", "v", false,
+		"Enables verbose output. Will be enabled if either this flag, config option or env var is provided.")
 	configPath := flag.StringP("config", "c", "./config.yml", "Path to the config file")
 	printJSON := flag.Bool("json", false, "Print all site reports as JSON to stdout")
 	flag.Parse()
@@ -46,7 +47,7 @@ func main() {
 	// Run DeLiC
 	if delicConfig.Cron == "" {
 		// Run once
-		if err = runDeLiC(manager, delicConfig, *printJSON); err != nil {
+		if err = runDeLiC(context.Background(), manager, delicConfig, *printJSON); err != nil {
 			log.Fatal().Err(err).Msg("Error while running DeLiC")
 		}
 	} else {
@@ -59,9 +60,9 @@ func main() {
 	}
 }
 
-func runDeLiC(manager *internal.Manager, delicConfig *config.Config, printJSON bool) error {
+func runDeLiC(ctx context.Context, manager *internal.Manager, delicConfig *config.Config, printJSON bool) error {
 	// Run manager
-	reports := manager.Run(delicConfig)
+	reports := manager.Run(ctx, delicConfig)
 
 	// Print JSON results if enabled
 	if printJSON {
@@ -78,7 +79,7 @@ func runDeLiC(manager *internal.Manager, delicConfig *config.Config, printJSON b
 
 func newDeLiCTask(manager *internal.Manager, delicConfig *config.Config, printJSON bool) tasker.TaskFunc {
 	return func(ctx context.Context) (int, error) {
-		if err := runDeLiC(manager, delicConfig, printJSON); err != nil {
+		if err := runDeLiC(ctx, manager, delicConfig, printJSON); err != nil {
 			return 1, err
 		}
 		return 0, nil

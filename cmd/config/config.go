@@ -66,7 +66,8 @@ func ParseConfig(configPath string) (*Config, error) {
 	viper.SetConfigFile(configPath)
 	err := viper.ReadInConfig()
 	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		var configNotFoundErr *viper.ConfigFileNotFoundError
+		if !errors.As(err, configNotFoundErr) {
 			return nil, fmt.Errorf("failed reading config file: %w", err)
 		}
 		log.Warn().Err(err).Msg("No config file found, expecting configuration through ENV variables")
@@ -88,12 +89,12 @@ func ParseConfig(configPath string) (*Config, error) {
 	// Validate and convert config
 	config := Config{RawConfig: rawConfig}
 	if len(rawConfig.Sites) == 0 {
-		return nil, errors.New("no sites defined")
+		return nil, ErrNoSitesDefined
 	}
 	if rawConfig.Cron != "" {
 		gron := gronx.New()
 		if !gron.IsValid(rawConfig.Cron) {
-			return nil, fmt.Errorf("invalid cron spec provided: '%s'", rawConfig.Cron)
+			return nil, InvalidCronSpecError{rawConfig.Cron}
 		}
 	}
 	if rawConfig.HealthCheck.URL != "" {
@@ -107,10 +108,10 @@ func ParseConfig(configPath string) (*Config, error) {
 	serviceRouter := &shoutrrrRouter.ServiceRouter{}
 	for i, rawNotifier := range rawConfig.Notifiers {
 		if rawNotifier.Name == "" {
-			return nil, fmt.Errorf("name missing for notifier at index %d", i)
+			return nil, NotifierFieldMissingError{field: "name", index: i}
 		}
 		if rawNotifier.URL == "" {
-			return nil, fmt.Errorf("url missing for notifier at index %d", i)
+			return nil, NotifierFieldMissingError{field: "url", index: i}
 		}
 		notifierService, err := serviceRouter.Locate(rawNotifier.URL)
 		if err != nil {
@@ -149,7 +150,7 @@ func ParseConfig(configPath string) (*Config, error) {
 		// Validate Notify
 		for _, notify := range rawSite.Notify {
 			if _, ok := config.Notifiers[notify]; !ok {
-				return nil, fmt.Errorf("site '%s' requested to notify unknown notifier '%s'", rawSite.URL, notify)
+				return nil, UnknownNotifierForSiteError{siteURL: site.URL.String(), notifier: notify}
 			}
 		}
 

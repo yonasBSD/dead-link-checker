@@ -2,6 +2,7 @@
 /.vscode/
 /e2e/
 /.gitignore
+/.golangci.yml
 /config.yml
 /Dockerfile
 /LICENSE

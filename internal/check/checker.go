@@ -16,7 +16,11 @@ import (
 	"github.com/JenswBE/dead-link-checker/internal/record"
 )
 
-var ignoredSchemes []string = []string{
+const (
+	requestTimeout = 30 * time.Second
+)
+
+var ignoredSchemes = []string{
 	"data:",
 	"ftp:",
 	"javascript:",
@@ -24,7 +28,7 @@ var ignoredSchemes []string = []string{
 	"tel:",
 }
 
-var tags map[string]tagConfig = map[string]tagConfig{
+var tags = map[string]tagConfig{
 	"a":   {linkAttributes: []string{"href"}},          // Anchors
 	"img": {linkAttributes: []string{"src", "srcset"}}, // Images
 	"link": { // CSS stylesheets
@@ -46,7 +50,7 @@ func Run(siteConfig config.SiteConfig, recorder *record.Recorder) error {
 		colly.IgnoreRobotsTxt(),
 		extensions.RandomUserAgent,
 	)
-	collector.SetRequestTimeout(30 * time.Second)
+	collector.SetRequestTimeout(requestTimeout)
 
 	// Define OnHTML callback
 	for linkTag, config := range tags {
@@ -131,17 +135,25 @@ func handleHTML(collector *colly.Collector, recorder *record.Recorder, tag, attr
 	}
 }
 
-func handleLinkValue(collector *colly.Collector, recorder *record.Recorder, e *colly.HTMLElement, linkValue string, linkReport record.Link) {
+func handleLinkValue(
+	collector *colly.Collector,
+	recorder *record.Recorder,
+	e *colly.HTMLElement,
+	linkValue string,
+	linkReport record.Link,
+) {
 	site := e.Request.Ctx.Get("site_url")
 	logger := log.With().Str("site_url", site).Str("link_value", linkValue).Logger()
 	if strings.HasPrefix(linkValue, "#") {
 		// Skip link as it's a hash link to the current page
-		logger.Debug().Str("page_url", e.Request.URL.String()).Msg("Link ignored because it is a hash link to the current page")
+		logger.Debug().Str("page_url", e.Request.URL.String()).
+			Msg("Link ignored because it is a hash link to the current page")
 		return
 	}
 	if !strings.HasPrefix(e.Request.URL.String(), site) {
 		// Skip link as we are already on an external site
-		logger.Debug().Str("page_url", e.Request.URL.String()).Msg("Link ignored because we are on an external site")
+		logger.Debug().Str("page_url", e.Request.URL.String()).
+			Msg("Link ignored because we are on an external site")
 		return
 	}
 	if hasIgnoredScheme(linkValue) {
@@ -178,7 +190,8 @@ func handleLinkValue(collector *colly.Collector, recorder *record.Recorder, e *c
 	ctxClone.Put("link_value", linkValue)
 	err := collector.Request(http.MethodGet, linkReport.AbsoluteURL, nil, ctxClone, nil)
 	if err != nil && !errors.Is(err, colly.ErrAlreadyVisited) && !errors.Is(err, colly.ErrForbiddenURL) {
-		log.Error().Err(err).Str("url", linkReport.AbsoluteURL).Str("method", http.MethodGet).Msg("Failed to send request. Will mark as broken link.")
+		log.Error().Err(err).Str("url", linkReport.AbsoluteURL).Str("method", http.MethodGet).
+			Msg("Failed to send request. Will mark as broken link.")
 		recorder.RecordBrokenLink(record.BrokenLink{
 			AbsoluteURL: linkReport.AbsoluteURL,
 			BrokenLinkDetails: record.BrokenLinkDetails{

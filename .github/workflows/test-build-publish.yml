@@ -37,6 +37,16 @@ jobs:
         with:
           version: latest
 
+      - name: Run exhaustive
+        run: |
+          go install github.com/nishanths/exhaustive/...@latest
+          exhaustive ./...
+
+      - name: Run govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
       - name: Start E2E services
         working-directory: e2e
         run: |

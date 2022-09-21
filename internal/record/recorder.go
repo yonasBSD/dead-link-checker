@@ -12,8 +12,9 @@ type Recorder struct {
 
 func NewRecorder() *Recorder {
 	c := &Recorder{
-		recordLink:       make(chan Link, 10),
-		recordBrokenLink: make(chan BrokenLink, 10),
+		// A buffer of 10 should be enough space as recorder is a light routine.
+		recordLink:       make(chan Link, 10),       //nolint:gomnd
+		recordBrokenLink: make(chan BrokenLink, 10), //nolint:gomnd
 		stop:             make(chan bool, 1),
 		result:           make(chan Recording, 1),
 	}
@@ -21,8 +22,8 @@ func NewRecorder() *Recorder {
 	go func() {
 		// Init variables
 		// Randomly chosen sizes to limit initial reallocation
-		links := make([]Link, 0, 64)
-		brokenLinks := make(map[string]BrokenLinkDetails, 16)
+		links := make([]Link, 0, 64)                          //nolint:gomnd
+		brokenLinks := make(map[string]BrokenLinkDetails, 16) //nolint:gomnd
 
 		// Start recording loop
 		for {

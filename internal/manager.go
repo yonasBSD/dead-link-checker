@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -38,7 +39,7 @@ func NewManager() *Manager {
 	}
 }
 
-func (m *Manager) Run(c *config.Config) map[string]report.Report {
+func (m *Manager) Run(ctx context.Context, c *config.Config) map[string]report.Report {
 	// Async check all sites and generate reports from recordings
 	var wg sync.WaitGroup
 	reportsCollector := make(chan report.SiteReport, len(c.Sites))
@@ -48,7 +49,8 @@ func (m *Manager) Run(c *config.Config) map[string]report.Report {
 			defer wg.Done()
 			recorder := record.NewRecorder()
 			if err := check.Run(siteConfig, recorder); err != nil {
-				log.Error().Err(err).Str("site_url", siteConfig.URL.String()).Msg("Failed to run checker. Will mark as broken link.")
+				log.Error().Err(err).Str("site_url", siteConfig.URL.String()).
+					Msg("Failed to run checker. Will mark as broken link.")
 				recorder.RecordBrokenLink(record.BrokenLink{
 					AbsoluteURL: siteConfig.URL.String(),
 					BrokenLinkDetails: record.BrokenLinkDetails{
@@ -76,11 +78,12 @@ func (m *Manager) Run(c *config.Config) map[string]report.Report {
 	// Return if no broken links found
 	if len(brokenLinksReportsMap) == 0 {
 		// No broken links found
-		pingHealthcheckURL(c.HealthCheck.URL)
+		pingHealthCheckURL(ctx, c.HealthCheck.URL)
 		log.Info().Msg("No broken links found in provided sites")
 		return allReportsMap
 	}
-	log.Info().Strs("sites", maps.Keys(brokenLinksReportsMap)).Msg("Sites with broken links found, sending notifications ...")
+	log.Info().Strs("sites", maps.Keys(brokenLinksReportsMap)).
+		Msg("Sites with broken links found, sending notifications ...")
 
 	// Build notifier map.
 	// This map contains the notifier as key and data for this notifier as value.
@@ -106,16 +109,19 @@ func (m *Manager) Run(c *config.Config) map[string]report.Report {
 	}
 
 	// Send notifications
-	var error_detected bool
+	var errorDetected bool
 	for notifierConfig, reportsMap := range notifierMap {
 		// Generate message
-		logger := log.With().Str("notifier_name", notifierConfig.NotifierName).Str("template_name", notifierConfig.TemplateName).Logger()
+		logger := log.With().
+			Str("notifier_name", notifierConfig.NotifierName).
+			Str("template_name", notifierConfig.TemplateName).
+			Logger()
 		logger.Debug().Msgf("Generating template for notifier '%s' ...", notifierConfig.NotifierName)
 		message := &strings.Builder{}
 		err := m.templates.ExecuteTemplate(message, notifierConfig.TemplateName+".html.go.tmpl", reportsMap)
 		if err != nil {
 			logger.Error().Err(err).Interface("reports_map", reportsMap).Msg("Failed to parse template for sending notification")
-			error_detected = true
+			errorDetected = true
 			continue
 		}
 
@@ -124,23 +130,40 @@ func (m *Manager) Run(c *config.Config) map[string]report.Report {
 		err = notifierConfig.Notifier.Send(message.String(), nil)
 		if err != nil {
 			logger.Error().Err(err).Msg("Failed to send notification")
-			error_detected = true
+			errorDetected = true
 		}
 		logger.Debug().Msgf("Message sent with notifier '%s' ...", notifierConfig.NotifierName)
 	}
 
 	// Call health check
-	if !error_detected {
-		pingHealthcheckURL(c.HealthCheck.URL)
+	if !errorDetected {
+		pingHealthCheckURL(ctx, c.HealthCheck.URL)
 	}
 	return allReportsMap
 }
 
-func pingHealthcheckURL(u *url.URL) {
+func pingHealthCheckURL(ctx context.Context, u *url.URL) {
 	if u != nil {
-		_, err := http.Get(u.String())
+		// Create request
+		logger := log.With().Str("health_check_url", u.String()).Logger()
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 		if err != nil {
-			log.Error().Err(err).Msg("Failed to send GET request to health check URL")
+			logger.Error().Err(err).Msg("Failed to create request for health check URL")
+			return
+		}
+
+		// Call health check
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			logger.Error().Err(err).Msg("Failed to send GET request to health check URL")
+			return
+		}
+
+		// Close body
+		if resp != nil {
+			if err = resp.Body.Close(); err != nil {
+				log.Error().Err(err).Msg("Failed to close response body after calling health check URL")
+			}
 		}
 	}
 }

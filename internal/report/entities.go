@@ -36,18 +36,34 @@ type Statistics struct {
 }
 
 type BrokenLink struct {
-	LinkValue              string // Value of the link, most likely a URL. Can be relative or absolute.
-	AbsoluteURL            string // Absolute URL based on the link value. Empty if not a valid URL.
-	Tag                    string // HTML tag, e.g. "img".
-	IsTagTextTypeAttribute bool   // The text type for this tag is "ATTRIBUTE".
-	IsTagTextTypeContent   bool   // The text type for this tag is "CONTENT".
-	IsTagTextTypeNone      bool   // The text type for this tag is "NONE".
-	TagTextKey             string // Key of the text for the tag. E.g. "alt" for an image.
-	TagTextValue           string // Content of the HTML tag or relevant attribute. E.g. text content for anchor, "alt" attribute value for image image, ...
-	Attribute              string // HTML attribute of tag, e.g. "src".
-	StatusCode             int    // HTTP status code
-	StatusDescription      string // Human readable status or error description
-	CountOnPage            int    // Count of this exact tag/attribute/tag content combo
+	// Value of the link, most likely a URL.
+	// Can be relative or absolute.
+	LinkValue string
+	// Absolute URL based on the link value.
+	// Empty if not a valid URL.
+	AbsoluteURL string
+	// HTML tag, e.g. "img".
+	Tag string
+	// The text type for this tag is "ATTRIBUTE".
+	IsTagTextTypeAttribute bool
+	// The text type for this tag is "CONTENT".
+	IsTagTextTypeContent bool
+	// The text type for this tag is "NONE".
+	IsTagTextTypeNone bool
+	// Key of the text for the tag.
+	// E.g. "alt" for an image.
+	TagTextKey string
+	// Content of the HTML tag or relevant attribute.
+	// E.g. text content for anchor, "alt" attribute value for image image, ...
+	TagTextValue string
+	// HTML attribute of tag, e.g. "src".
+	Attribute string
+	// HTTP status code
+	StatusCode int
+	// Human readable status or error description
+	StatusDescription string
+	// Count of this exact tag/attribute/tag content combo
+	CountOnPage int
 }
 
 func (l *BrokenLink) String() string {
