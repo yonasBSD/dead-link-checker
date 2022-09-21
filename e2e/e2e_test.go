@@ -36,7 +36,6 @@ func TestE2E(t *testing.T) {
 	must(json.NewDecoder(expectedFile).Decode(&expected))
 
 	// Assert
-	t.Fatal("FIXME: Fix slices order in cmp.Diff")
 	diff := cmp.Diff(expected, actual)
 	if diff != "" {
 		t.Fatal(diff)

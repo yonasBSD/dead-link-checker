@@ -1,5 +1,10 @@
 package report
 
+import (
+	"fmt"
+	"strings"
+)
+
 type SiteReport struct {
 	SiteURL string
 	Report
@@ -43,4 +48,37 @@ type BrokenLink struct {
 	StatusCode             int    // HTTP status code
 	StatusDescription      string // Human readable status or error description
 	CountOnPage            int    // Count of this exact tag/attribute/tag content combo
+}
+
+func (l *BrokenLink) String() string {
+	if l == nil {
+		return ""
+	}
+	// "link_value=xxx;absolute_url=yyy;tag=zzz;..."
+	return fmt.Sprintf(strings.Join([]string{
+		"link_value=%s",
+		"absolute_url=%s",
+		"tag=%s",
+		"is_tag_text_type_attribute=%t",
+		"is_tag_text_type_content=%t",
+		"is_tag_text_type_none=%t",
+		"tag_text_key=%s",
+		"attribute=%s",
+		"status_code=%d",
+		"status_description=%s",
+		"count_on_page=%s",
+	}, ";"),
+		l.LinkValue,
+		l.AbsoluteURL,
+		l.Tag,
+		l.IsTagTextTypeAttribute,
+		l.IsTagTextTypeContent,
+		l.IsTagTextTypeNone,
+		l.TagTextKey,
+		l.TagTextValue,
+		l.Attribute,
+		l.StatusCode,
+		l.StatusDescription,
+		l.CountOnPage,
+	)
 }

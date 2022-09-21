@@ -1,4 +1,4 @@
-# verbose: True # Optional
+verbose: True # Optional
 
 # cron: "* * * * *" # Optional, run every midnight
 
