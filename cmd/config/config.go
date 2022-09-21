@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -66,11 +65,7 @@ func ParseConfig(configPath string) (*Config, error) {
 	viper.SetConfigFile(configPath)
 	err := viper.ReadInConfig()
 	if err != nil {
-		var configNotFoundErr *viper.ConfigFileNotFoundError
-		if !errors.As(err, configNotFoundErr) {
-			return nil, fmt.Errorf("failed reading config file: %w", err)
-		}
-		log.Warn().Err(err).Msg("No config file found, expecting configuration through ENV variables")
+		return nil, fmt.Errorf("failed reading config file: %w", err)
 	}
 
 	// Bind ENV variables
