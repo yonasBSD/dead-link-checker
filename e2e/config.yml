@@ -1,6 +1,6 @@
 verbose: True # Optional
 
-# cron: "* * * * *" # Optional, run every midnight
+# cron: "* * * * *" # Optional, run every minute
 
 health_check:
   url: "" # Optional, endpoint to send GET request to on a successful run

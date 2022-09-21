@@ -60,5 +60,6 @@ docker run -v /path/to/config.yml:/config.yml:ro,z jenswbe/dead-link-checker
 ```
 -c, --config    Location of the config file
     --json      Print all site reports as JSON to stdout
+    --now       Overrides cron and forces an immediate check
 -v, --verbose   Enable verbose output
 ```

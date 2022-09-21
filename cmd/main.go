@@ -22,6 +22,7 @@ func main() {
 		"Enables verbose output. Will be enabled if either this flag, config option or env var is provided.")
 	configPath := flag.StringP("config", "c", "./config.yml", "Path to the config file")
 	printJSON := flag.Bool("json", false, "Print all site reports as JSON to stdout")
+	runNow := flag.Bool("now", false, "Overrides cron and forces an immediate check")
 	flag.Parse()
 
 	// Setup logging
@@ -45,7 +46,7 @@ func main() {
 	manager := internal.NewManager()
 
 	// Run DeLiC
-	if delicConfig.Cron == "" {
+	if delicConfig.Cron == "" || *runNow {
 		// Run once
 		if err = runDeLiC(context.Background(), manager, delicConfig, *printJSON); err != nil {
 			log.Fatal().Err(err).Msg("Error while running DeLiC")
