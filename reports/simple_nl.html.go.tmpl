@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rapport</title>
+  </head>
+  <body>
+    <p>Defecte links gevonden:</p>
+
+    <ul>
+      {{ range $siteURL, $report := . }}
+        <li>
+          <p>
+            Website: <a href="{{ $siteURL }}" target="_blank">{{ $siteURL }}</a>
+          </p>
+          <ul>
+            {{ range $pageURL, $brokenLinks := $report.BrokenLinksByPageURL }}
+              <li>
+                <p>
+                  Pagina:
+                  <a href="{{ $pageURL }}" target="_blank">{{ $pageURL }}</a>
+                </p>
+                <ul>
+                  {{ range $brokenLinks }}
+                    <li>
+                      {{ if eq .Tag "a" }}
+                        Link met tekst "{{ .TagTextValue }}" naar
+                        {{ if hasPrefix .LinkValue "http" }}
+                          <a href="{{ .LinkValue }}" target="_blank"
+                            >{{ .LinkValue }}</a
+                          >
+                        {{ else }}
+                          "{{ .LinkValue }}"
+                        {{ end }}:
+                        {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ else if eq .Tag "img" }}
+                        Foto met beschrijving "{{ .TagTextValue }}" en bron
+                        "{{ .LinkValue }}": {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ else if eq .Tag "link" }}
+                        Link naar type "{{ .TagTextValue }}" en bron
+                        "{{ .LinkValue }}": {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ else if eq .Tag "script" }}
+                        Link naar Javascript bestand "{{ .LinkValue }}":
+                        {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ else if eq .Tag "source" }}
+                        Link naar bron (source) "{{ .LinkValue }}" in een foto:
+                        {{ .StatusCode }} -
+                        {{ .StatusDescription }}
+                      {{ end }}
+                    </li>
+                  {{ end }}
+                </ul>
+              </li>
+            {{ end }}
+          </ul>
+        </li>
+      {{ end }}
+    </ul>
+  </body>
+</html>

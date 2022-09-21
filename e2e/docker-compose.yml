@@ -1,0 +1,22 @@
+services:
+  nginx-main:
+    image: docker.io/library/nginx:latest
+    container_name: nginx-main
+    volumes:
+      - "./sites/main:/usr/share/nginx/html:ro,z"
+    ports:
+      - "9080:80"
+
+  nginx-external:
+    image: docker.io/library/nginx:latest
+    container_name: nginx-external
+    volumes:
+      - "./sites/external:/usr/share/nginx/html:ro,z"
+    ports:
+      - "9081:80"
+
+  smtp4dev:
+    image: docker.io/rnwood/smtp4dev:v3
+    ports:
+      - "8080:80"
+      - "8025:25"

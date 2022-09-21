@@ -1,7 +1,0 @@
-# Include prod
--r prod.txt
-
-# Tests
-pytest==6.2.*
-pytest-cov==2.11.*
-responses==0.13.*

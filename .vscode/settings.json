@@ -1,0 +1,6 @@
+{
+  "go.buildTags": "e2e",
+  "gopls": {
+    "formatting.local": "github.com/JenswBE/dead-link-checker"
+  }
+}

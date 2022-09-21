@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <p>
+      <!-- Valid images -->
+      <img src="image.gif" alt="test-img-1" />
+      <img srcset="image.gif 2x, image.gif 1x" alt="test-img-2" />
+      <img
+        src="image.gif"
+        srcset="image.gif 2x, image.gif 1x"
+        alt="test-img-3"
+      />
+
+      <!-- Invalid src -->
+      <img src="not_found.gif" alt="test-img-4" />
+      <img
+        src="not_found.gif"
+        srcset="image.gif 2x, image.gif 1x"
+        alt="test-img-5"
+      />
+
+      <!-- Invalid srcset -->
+      <img srcset="image.gif 2x, not_found.gif 1x" alt="test-img-6" />
+      <img srcset="not_found.gif 2x, not_found.gif 1x" alt="test-img-7" />
+      <img
+        src="image.gif"
+        srcset="image.gif 2x, not_found.gif 1x"
+        alt="test-img-8"
+      />
+      <img
+        src="image.gif"
+        srcset="not_found.gif 2x, not_found.gif 1x"
+        alt="test-img-9"
+      />
+
+      <!-- Invalid all -->
+      <img
+        src="not_found.gif"
+        srcset="image.gif 2x, not_found.gif 1x"
+        alt="test-img-10"
+      />
+      <img
+        src="not_found.gif"
+        srcset="not_found.gif 2x, not_found.gif 1x"
+        alt="test-img-11"
+      />
+    </p>
+  </body>
+</html>
