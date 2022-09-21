@@ -1,56 +1,64 @@
-# TODO
-
-- `LinksCountTotal` doesn't contain ignored scheme's and links.
-
-# Old
-
-[![Build multi arch Docker](https://github.com/JenswBE/python-dead-link-checker/workflows/Build%20multi%20arch%20Docker/badge.svg)](https://github.com/JenswBE/python-dead-link-checker)
-[![codecov](https://codecov.io/gh/JenswBE/python-dead-link-checker/branch/master/graph/badge.svg)](https://codecov.io/gh/JenswBE/python-dead-link-checker)
+[![Test, build and publish](https://github.com/JenswBE/dead-link-checker/actions/workflows/test-build-publish.yml/badge.svg?branch=main)](https://github.com/JenswBE/dead-link-checker/actions/workflows/test-build-publish.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/jenswbe/dead-link-checker)](https://hub.docker.com/r/jenswbe/dead-link-checker)
 
 # Dead Link Checker (DeLiC)
 
-Dead link checker written in Python
+Dead link checker written in Golang using [Colly](https://github.com/gocolly/colly).
 
 ## 1. Config
 
-```yaml
-verbose: False # Optional, can also be set as environment variable VERBOSE
+### Full example
 
-cron: "0 0 * * *" # Optional, run every night
+```yaml
+# Optional, can also be set as environment variable VERBOSE.
+# Default is False.
+verbose: False
+
+# Optional, run every night.
+# If omitted or empty, DeLiC will check the provided sites once and exit.
+cron: "0 0 * * *"
+
+# Optional, endpoint to send GET request to on a successful run.
+# If omitted or empty, health check request will be skipped.
+health_check:
+  url: "https://example.com/delic-health-check"
+
+# Optional, see https://github.com/containrrr/shoutrrr/blob/main/docs/services/overview.md for supported URL's.
+# If using "smtp", make sure to set option "usehtml=true".
+notifiers:
+  - name: email_technical_en
+    url: smtp://smpt4dev:smpt4dev@localhost:8025/?from=delic@localhost&to=admin1@localhost,admin2@localhost&usehtml=true&subject=Broken%20links%20found
+    template_name: "technical_en" # Currently only "technical_en" and "simple_nl" supported
 
 sites:
   - url: https://jensw.be
     ignored_links: # Optional, list of regex's which should be ignored
       - ^https://jensw.be/don't-visit-me.*
-
-notify: # Optional, example for Mailjet using SMTP
-  provider: email
-  data:
-    host: in-v3.mailjet.com
-    port: 587
-    tls: True
-    username: REPLACE_ME
-    password: REPLACE_ME
-    from: delic@example.com
-    to: admin@example.com
-    subject: Broken links found
+    notify: # Optional, send notification to these notifiers by name
+      - email_technical_en
 ```
 
-See [Notifiers documentation](https://notifiers.readthedocs.io/en/latest/providers/index.html)
-for the full list of supported notification providers and their configurations.
+### Minimal example
+
+Probably only useful with `--json` flag.
+
+```yaml
+sites:
+  - url: https://jensw.be
+```
 
 ## 2. Run DeLiC
 
-By default, DeLiC tries to read the config file at `/config.yml`.
+By default, DeLiC tries to read the config file at `./config.yml`.
 
 ```bash
-docker run -v /path/to/config.yml:/config.yml jenswbe/dead-link-checker
+docker run -v /path/to/config.yml:/config.yml:ro,z jenswbe/dead-link-checker
 ```
 
 ## 3. CLI arguments
 
 ```
 -c, --config    Location of the config file
+    --json      Print all site reports as JSON to stdout
 -v, --verbose   Enable verbose output
 ```

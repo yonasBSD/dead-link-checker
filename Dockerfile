@@ -6,7 +6,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -ldflags='-extldflags=-static' -o /bin/delic ./cmd
 
 FROM docker.io/library/alpine:latest
-COPY --from=builder /bin/delic /delic/bin/delic
+COPY --from=builder /bin/delic /delic
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-WORKDIR /delic/bin
+WORKDIR /
 ENTRYPOINT ["./delic"]
