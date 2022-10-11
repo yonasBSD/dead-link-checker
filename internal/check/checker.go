@@ -189,7 +189,8 @@ func handleLinkValue(
 	// Visit link
 	ctxClone.Put("link_value", linkValue)
 	err := collector.Request(http.MethodGet, linkReport.AbsoluteURL, nil, ctxClone, nil)
-	if err != nil && !errors.Is(err, colly.ErrAlreadyVisited) && !errors.Is(err, colly.ErrForbiddenURL) {
+	var visitedErr *colly.AlreadyVisitedError
+	if err != nil && !errors.As(err, &visitedErr) && !errors.Is(err, colly.ErrForbiddenURL) {
 		log.Error().Err(err).Str("url", linkReport.AbsoluteURL).Str("method", http.MethodGet).
 			Msg("Failed to send request. Will mark as broken link.")
 		recorder.RecordBrokenLink(record.BrokenLink{
