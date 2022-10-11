@@ -3,9 +3,8 @@
 {
     "http://localhost:9080": {
         "Statistics": {
-            "LinksCountTotal": 51,
+            "LinksCountTotal": 46,
             "LinksCountByPageURL": {
-                "http://localhost:9080": 5,
                 "http://localhost:9080/": 5,
                 "http://localhost:9080/tag_a.html": 7,
                 "http://localhost:9080/tag_img.html": 26,
