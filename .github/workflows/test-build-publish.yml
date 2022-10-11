@@ -31,6 +31,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
+          check-latest: true
           go-version: ${{ env.GO_VERSION }}
 
       - name: golangci-lint
