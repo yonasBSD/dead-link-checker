@@ -26,7 +26,8 @@ jobs:
           tag = os.environ['GITHUB_REF'].split('/').pop()
           if tag == 'main':
             tag = 'latest'
-          print(f"::set-output name=docker_tag::{tag}")
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+            output.write(f"docker_tag={tag}{os.linesep}")
 
       - name: Setup Go
         uses: actions/setup-go@v3
