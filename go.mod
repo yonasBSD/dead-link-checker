@@ -4,16 +4,16 @@ go 1.18
 
 require (
 	github.com/adhocore/gronx v1.1.2
-	github.com/containrrr/shoutrrr v0.6.1
+	github.com/containrrr/shoutrrr v0.7.1
 	// Latest stable release v2.1.0 has security issues.
 	// See e.g. https://github.com/gocolly/colly/issues/581.
 	github.com/gocolly/colly/v2 v2.0.0-20220706081359-947eeead97b3
 	github.com/google/go-cmp v0.5.9
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/rs/zerolog v1.28.0
+	github.com/rs/zerolog v1.29.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
-	golang.org/x/exp v0.0.0-20230118134722-a68e582fa157
+	golang.org/x/exp v0.0.0-20230130191013-ac48d9c7dd6e
 )
 
 require (
