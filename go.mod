@@ -1,6 +1,6 @@
 module github.com/JenswBE/dead-link-checker
 
-go 1.18
+go 1.20
 
 require (
 	github.com/adhocore/gronx v1.1.2
@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.29.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
-	golang.org/x/exp v0.0.0-20230130191013-ac48d9c7dd6e
+	golang.org/x/exp v0.0.0-20230202163644-54bba9f4231b
 )
 
 require (

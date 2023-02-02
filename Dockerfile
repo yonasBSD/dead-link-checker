@@ -1,5 +1,5 @@
 # Also update GitHub Actions workflow when bumping
-FROM docker.io/library/golang:1.18 AS builder
+FROM docker.io/library/golang:1.20 AS builder
 
 WORKDIR /src/
 COPY . .
