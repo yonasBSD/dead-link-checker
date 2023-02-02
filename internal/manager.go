@@ -143,27 +143,30 @@ func (m *Manager) Run(ctx context.Context, c *config.Config) map[string]report.R
 }
 
 func pingHealthCheckURL(ctx context.Context, u *url.URL) {
-	if u != nil {
-		// Create request
-		logger := log.With().Str("health_check_url", u.String()).Logger()
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-		if err != nil {
-			logger.Error().Err(err).Msg("Failed to create request for health check URL")
-			return
-		}
+	// Skip if URL is nil
+	if u == nil {
+		return
+	}
 
-		// Call health check
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			logger.Error().Err(err).Msg("Failed to send GET request to health check URL")
-			return
-		}
+	// Create request
+	logger := log.With().Str("health_check_url", u.String()).Logger()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to create request for health check URL")
+		return
+	}
 
-		// Close body
-		if resp != nil {
-			if err = resp.Body.Close(); err != nil {
-				log.Error().Err(err).Msg("Failed to close response body after calling health check URL")
-			}
+	// Call health check
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to send GET request to health check URL")
+		return
+	}
+
+	// Close body
+	if resp != nil {
+		if err = resp.Body.Close(); err != nil {
+			log.Error().Err(err).Msg("Failed to close response body after calling health check URL")
 		}
 	}
 }

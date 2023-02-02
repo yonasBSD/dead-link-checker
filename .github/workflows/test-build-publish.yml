@@ -35,15 +35,13 @@ jobs:
           check-latest: true
           go-version: ${{ env.GO_VERSION }}
 
+      - name: Pull common linter configs
+        run: wget -O .golangci.yml https://raw.githubusercontent.com/JenswBE/setup/main/programming_configs/golang/.golangci.yml
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-
-      - name: Run exhaustive
-        run: |
-          go install github.com/nishanths/exhaustive/...@latest
-          exhaustive ./...
 
       - name: Start E2E services
         working-directory: e2e
