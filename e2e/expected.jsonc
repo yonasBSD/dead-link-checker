@@ -3,10 +3,10 @@
 {
     "http://localhost:9080": {
         "Statistics": {
-            "LinksCountTotal": 46,
+            "LinksCountTotal": 51,
             "LinksCountByPageURL": {
                 "http://localhost:9080/": 5,
-                "http://localhost:9080/tag_a.html": 7,
+                "http://localhost:9080/tag_a.html": 12,
                 "http://localhost:9080/tag_img.html": 26,
                 "http://localhost:9080/tag_link.html": 2,
                 "http://localhost:9080/tag_picture_source.html": 4,
@@ -24,6 +24,34 @@
                     "IsTagTextTypeNone": false,
                     "TagTextKey": "",
                     "TagTextValue": "404 relative",
+                    "Attribute": "href",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "http://localhost:9080/external_redirect_404",
+                    "AbsoluteURL": "http://localhost:9080/external_redirect_404",
+                    "Tag": "a",
+                    "IsTagTextTypeAttribute": false,
+                    "IsTagTextTypeContent": true,
+                    "IsTagTextTypeNone": false,
+                    "TagTextKey": "",
+                    "TagTextValue": "Redirect external 404",
+                    "Attribute": "href",
+                    "StatusCode": 404,
+                    "StatusDescription": "Not Found",
+                    "CountOnPage": 1
+                },
+                {
+                    "LinkValue": "http://localhost:9080/internal_redirect_404",
+                    "AbsoluteURL": "http://localhost:9080/internal_redirect_404",
+                    "Tag": "a",
+                    "IsTagTextTypeAttribute": false,
+                    "IsTagTextTypeContent": true,
+                    "IsTagTextTypeNone": false,
+                    "TagTextKey": "",
+                    "TagTextValue": "Redirect internal 404",
                     "Attribute": "href",
                     "StatusCode": 404,
                     "StatusDescription": "Not Found",
