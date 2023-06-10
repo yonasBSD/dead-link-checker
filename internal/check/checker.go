@@ -68,22 +68,40 @@ func Run(siteConfig config.SiteConfig, recorder *record.Recorder) error {
 	// Define OnError callback
 	siteURL := siteConfig.URL.String()
 	collector.OnError(func(r *colly.Response, err error) {
+		// Setup logger
+		linkAbsoluteURL := r.Request.Ctx.Get("link_absolute_url")
+		logger := log.With().
+			Int("status_code", r.StatusCode).
+			Str("link_value", r.Request.Ctx.Get("link_value")).
+			Str("link_absolute_url", linkAbsoluteURL).
+			Str("actual_absolute_url", r.Request.URL.String()).
+			Str("page_url", r.Request.Ctx.Get("page_url")).
+			Str("tag", r.Request.Ctx.Get("tag")).
+			Str("attribute", r.Request.Ctx.Get("attribute")).
+			Str("site_url", siteURL).
+			Logger()
+
+		// Handle false-positives due to redirection
+		var visitedErr *colly.AlreadyVisitedError
+		if errors.As(err, &visitedErr) {
+			logger.Info().Err(err).Msg("Link already visited, probably due to a redirect. Ignoring ...")
+			return // Ignore error
+		}
+		if errors.Is(err, colly.ErrForbiddenURL) && strings.Contains(err.Error(), "redirect") {
+			logger.Info().Err(err).Msg("Redirect to ignored link, ignoring ...")
+			return // Ignore error
+		}
+
+		// Report broken link
 		report := record.BrokenLink{
-			AbsoluteURL: r.Request.URL.String(),
+			AbsoluteURL: linkAbsoluteURL,
 			BrokenLinkDetails: record.BrokenLinkDetails{
 				StatusCode:        r.StatusCode,
 				StatusDescription: err.Error(),
 			},
 		}
 		recorder.RecordBrokenLink(report)
-		log.Warn().Err(err).
-			Int("status_code", report.StatusCode).
-			Str("link_value", r.Request.Ctx.Get("link_value")).
-			Str("page_url", r.Request.Ctx.Get("page_url")).
-			Str("tag", r.Request.Ctx.Get("tag")).
-			Str("attribute", r.Request.Ctx.Get("attribute")).
-			Str("site_url", siteURL).
-			Msg("Following link returned error")
+		logger.Warn().Err(err).Msg("Following link returned error")
 	})
 
 	// Start initial request
@@ -188,6 +206,7 @@ func handleLinkValue(
 
 	// Visit link
 	ctxClone.Put("link_value", linkValue)
+	ctxClone.Put("link_absolute_url", linkReport.AbsoluteURL)
 	err := collector.Request(http.MethodGet, linkReport.AbsoluteURL, nil, ctxClone, nil)
 	var visitedErr *colly.AlreadyVisitedError
 	if err != nil && !errors.As(err, &visitedErr) && !errors.Is(err, colly.ErrForbiddenURL) {

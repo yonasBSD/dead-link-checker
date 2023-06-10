@@ -63,3 +63,13 @@ docker run -v /path/to/config.yml:/config.yml:ro,z jenswbe/dead-link-checker
     --now       Overrides cron and forces an immediate check
 -v, --verbose   Enable verbose output
 ```
+
+# Development
+
+## Running E2E tests
+
+```bash
+cd e2e
+docker compose up -d
+go test --tags e2e ./...
+```
