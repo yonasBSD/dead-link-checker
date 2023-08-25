@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/extensions"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/exp/slices"
 
 	"github.com/JenswBE/dead-link-checker/cmd/config"
 	"github.com/JenswBE/dead-link-checker/internal/record"

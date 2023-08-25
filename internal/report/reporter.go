@@ -3,7 +3,8 @@
 package report
 
 import (
-	"golang.org/x/exp/slices"
+	"cmp"
+	"slices"
 
 	"github.com/JenswBE/dead-link-checker/cmd/config"
 	"github.com/JenswBE/dead-link-checker/internal/record"
@@ -48,7 +49,7 @@ func GenerateReport(siteConfig config.SiteConfig, recording record.Recording) Si
 			brokenLink.CountOnPage = count
 			brokenLinks = append(brokenLinks, brokenLink)
 		}
-		slices.SortFunc(brokenLinks, func(a, b BrokenLink) bool { return a.String() < b.String() }) // Ensure consistent order
+		slices.SortFunc(brokenLinks, func(a, b BrokenLink) int { return cmp.Compare(a.String(), b.String()) }) // Ensure consistent order
 		report.BrokenLinksByPageURL[pageURL] = brokenLinks
 	}
 	return report
