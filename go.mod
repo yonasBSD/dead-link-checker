@@ -3,7 +3,7 @@ module github.com/JenswBE/dead-link-checker
 go 1.21
 
 require (
-	github.com/adhocore/gronx v1.6.6
+	github.com/adhocore/gronx v1.6.7
 	github.com/containrrr/shoutrrr v0.8.0
 	// Latest stable release v2.1.0 has security issues.
 	// See e.g. https://github.com/gocolly/colly/issues/581.
