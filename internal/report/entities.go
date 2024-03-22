@@ -26,44 +26,44 @@ func NewEmptySiteReport(siteURL string) SiteReport {
 }
 
 type Report struct {
-	Statistics           Statistics
-	BrokenLinksByPageURL map[string][]BrokenLink
+	Statistics           Statistics              `json:"Statistics"`
+	BrokenLinksByPageURL map[string][]BrokenLink `json:"BrokenLinksByPageURL"`
 }
 
 type Statistics struct {
-	LinksCountTotal     int
-	LinksCountByPageURL map[string]int
+	LinksCountTotal     int            `json:"LinksCountTotal"`
+	LinksCountByPageURL map[string]int `json:"LinksCountByPageURL"`
 }
 
 type BrokenLink struct {
 	// Value of the link, most likely a URL.
 	// Can be relative or absolute.
-	LinkValue string
+	LinkValue string `json:"LinkValue"`
 	// Absolute URL based on the link value.
 	// Empty if not a valid URL.
-	AbsoluteURL string
+	AbsoluteURL string `json:"AbsoluteURL"`
 	// HTML tag, e.g. "img".
-	Tag string
+	Tag string `json:"Tag"`
 	// The text type for this tag is "ATTRIBUTE".
-	IsTagTextTypeAttribute bool
+	IsTagTextTypeAttribute bool `json:"IsTagTextTypeAttribute"`
 	// The text type for this tag is "CONTENT".
-	IsTagTextTypeContent bool
+	IsTagTextTypeContent bool `json:"IsTagTextTypeContent"`
 	// The text type for this tag is "NONE".
-	IsTagTextTypeNone bool
+	IsTagTextTypeNone bool `json:"IsTagTextTypeNone"`
 	// Key of the text for the tag.
 	// E.g. "alt" for an image.
-	TagTextKey string
+	TagTextKey string `json:"TagTextKey"`
 	// Content of the HTML tag or relevant attribute.
 	// E.g. text content for anchor, "alt" attribute value for image image, ...
-	TagTextValue string
+	TagTextValue string `json:"TagTextValue"`
 	// HTML attribute of tag, e.g. "src".
-	Attribute string
+	Attribute string `json:"Attribute"`
 	// HTTP status code
-	StatusCode int
+	StatusCode int `json:"StatusCode"`
 	// Human readable status or error description
-	StatusDescription string
+	StatusDescription string `json:"StatusDescription"`
 	// Count of this exact tag/attribute/tag content combo
-	CountOnPage int
+	CountOnPage int `json:"CountOnPage"`
 }
 
 func (l *BrokenLink) String() string {
