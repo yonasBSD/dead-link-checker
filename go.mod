@@ -10,7 +10,7 @@ require (
 	github.com/gocolly/colly/v2 v2.0.0-20230517145056-ea4b1dd0e5e6
 	github.com/google/go-cmp v0.6.0
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
