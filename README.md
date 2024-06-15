@@ -10,6 +10,14 @@ Dead link checker written in Golang using [Colly](https://github.com/gocolly/col
 ### Full example
 
 ```yaml
+# Required
+sites:
+  - url: https://jensw.be
+    ignored_links: # Optional, list of regex's which should be ignored
+      - ^https://jensw.be/don't-visit-me.*
+    notify: # Optional, send notification to these notifiers by name
+      - email_technical_en
+
 # Optional, can also be set as environment variable VERBOSE.
 # Default is False.
 verbose: False
@@ -29,13 +37,6 @@ notifiers:
   - name: email_technical_en
     url: smtp://smpt4dev:smpt4dev@localhost:8025/?from=delic@localhost&to=admin1@localhost,admin2@localhost&usehtml=true&subject=Broken%20links%20found
     template_name: "technical_en" # Currently only "technical_en" and "simple_nl" supported
-
-sites:
-  - url: https://jensw.be
-    ignored_links: # Optional, list of regex's which should be ignored
-      - ^https://jensw.be/don't-visit-me.*
-    notify: # Optional, send notification to these notifiers by name
-      - email_technical_en
 ```
 
 ### Minimal example
