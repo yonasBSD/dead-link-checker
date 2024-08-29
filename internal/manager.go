@@ -3,13 +3,14 @@ package internal
 import (
 	"context"
 	"html/template"
+	"maps"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"sync"
 
 	"github.com/rs/zerolog/log"
-	"golang.org/x/exp/maps"
 
 	"github.com/JenswBE/dead-link-checker/cmd/config"
 	"github.com/JenswBE/dead-link-checker/internal/check"
@@ -82,7 +83,7 @@ func (m *Manager) Run(ctx context.Context, c *config.Config) map[string]report.R
 		log.Info().Msg("No broken links found in provided sites")
 		return allReportsMap
 	}
-	log.Info().Strs("sites", maps.Keys(brokenLinksReportsMap)).
+	log.Info().Strs("sites", slices.Collect(maps.Keys(brokenLinksReportsMap))).
 		Msg("Sites with broken links found, sending notifications ...")
 
 	// Build notifier map.
