@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -42,11 +43,13 @@ var tags = map[string]tagConfig{
 }
 
 // Run checks the provided site. This call blocks until the whole site is checked.
-func Run(siteConfig config.SiteConfig, recorder *record.Recorder) error {
+func Run(siteConfig config.SiteConfig, globalIgnoredLinks []*regexp.Regexp, recorder *record.Recorder) error {
 	// Create collector
+	ignoredLinks := siteConfig.IgnoredLinks
+	ignoredLinks = append(ignoredLinks, globalIgnoredLinks...)
 	collector := colly.NewCollector(
 		colly.Async(true),
-		colly.DisallowedURLFilters(siteConfig.IgnoredLinks...),
+		colly.DisallowedURLFilters(ignoredLinks...),
 		colly.IgnoreRobotsTxt(),
 		extensions.RandomUserAgent,
 	)

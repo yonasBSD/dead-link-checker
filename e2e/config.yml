@@ -13,6 +13,9 @@ notifiers: # Optional, see https://github.com/containrrr/shoutrrr/blob/main/docs
     url: smtp://smpt4dev:smpt4dev@localhost:8025/?from=delic@localhost&to=user@localhost&usehtml=true&subject=Defecte%20links%20gevonden
     template_name: "simple_nl" # Currently only "technical_en" and "simple_nl" supported
 
+ignored_links:
+  - ^http://localhost:9083
+
 sites:
   - url: http://localhost:9080
     ignored_links:
