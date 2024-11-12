@@ -14,9 +14,13 @@ Dead link checker written in Golang using [Colly](https://github.com/gocolly/col
 sites:
   - url: https://jensw.be
     ignored_links: # Optional, list of regex's which should be ignored
-      - ^https://jensw.be/don't-visit-me.*
+      - ^https://jensw.be/do-not-visit-me.*
     notify: # Optional, send notification to these notifiers by name
       - email_technical_en
+
+# Optional, globally ignored links (see sites.ignored_links)
+ignored_links:
+  - ^https://jensw.be/also-not-visit-me.*
 
 # Optional, can also be set as environment variable VERBOSE.
 # Default is False.

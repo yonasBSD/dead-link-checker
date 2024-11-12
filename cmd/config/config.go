@@ -14,11 +14,12 @@ import (
 )
 
 type RawConfig struct {
-	Verbose     bool
-	Cron        string
-	HealthCheck RawHealthCheck `mapstructure:"health_check"`
-	Notifiers   []RawNotifier  `mapstructure:"notifiers"`
-	Sites       []RawSiteConfig
+	Verbose      bool
+	Cron         string
+	HealthCheck  RawHealthCheck `mapstructure:"health_check"`
+	Notifiers    []RawNotifier  `mapstructure:"notifiers"`
+	IgnoredLinks []string       `mapstructure:"ignored_links"`
+	Sites        []RawSiteConfig
 }
 
 type RawHealthCheck struct {
@@ -39,9 +40,10 @@ type RawSiteConfig struct {
 
 type Config struct {
 	RawConfig
-	HealthCheck HealthCheck
-	Notifiers   map[string]NotifierConfig
-	Sites       []SiteConfig
+	HealthCheck  HealthCheck
+	Notifiers    map[string]NotifierConfig
+	IgnoredLinks []*regexp.Regexp
+	Sites        []SiteConfig
 }
 
 type HealthCheck struct {
@@ -119,6 +121,13 @@ func ParseConfig(configPath string) (*Config, error) {
 			TemplateName: rawNotifier.TemplateName,
 		}
 	}
+
+	// Parse global ignored links
+	config.IgnoredLinks, err = parseIgnoredLinks(rawConfig.IgnoredLinks, "global")
+	if err != nil {
+		return nil, err
+	}
+
 	config.Sites = make([]SiteConfig, 0, len(rawConfig.Sites))
 	for _, rawSite := range rawConfig.Sites {
 		// Create initial SiteConfig
@@ -135,12 +144,9 @@ func ParseConfig(configPath string) (*Config, error) {
 		}
 
 		// Parse IgnoredLinks
-		for _, ignoredLink := range rawSite.IgnoredLinks {
-			ignoredLinkRegex, err := regexp.Compile(ignoredLink)
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse ignored link '%s' for site '%s': %w", ignoredLink, site, err)
-			}
-			site.IgnoredLinks = append(site.IgnoredLinks, ignoredLinkRegex)
+		site.IgnoredLinks, err = parseIgnoredLinks(rawSite.IgnoredLinks, site.URL.String())
+		if err != nil {
+			return nil, err
 		}
 
 		// Validate Notify
@@ -169,4 +175,16 @@ func bindEnvs(bindings []envBinding) error {
 		}
 	}
 	return nil
+}
+
+func parseIgnoredLinks(links []string, site string) ([]*regexp.Regexp, error) {
+	parsedLinks := make([]*regexp.Regexp, len(links))
+	for i, link := range links {
+		linkRegex, err := regexp.Compile(link)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse ignored link '%s' for site '%s': %w", link, site, err)
+		}
+		parsedLinks[i] = linkRegex
+	}
+	return parsedLinks, nil
 }

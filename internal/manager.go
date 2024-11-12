@@ -49,7 +49,7 @@ func (m *Manager) Run(ctx context.Context, c *config.Config) map[string]report.R
 		go func(siteConfig config.SiteConfig) {
 			defer wg.Done()
 			recorder := record.NewRecorder()
-			if err := check.Run(siteConfig, recorder); err != nil {
+			if err := check.Run(siteConfig, c.IgnoredLinks, recorder); err != nil {
 				log.Error().Err(err).Str("site_url", siteConfig.URL.String()).
 					Msg("Failed to run checker. Will mark as broken link.")
 				recorder.RecordBrokenLink(record.BrokenLink{
