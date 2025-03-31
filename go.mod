@@ -2,6 +2,8 @@ module github.com/JenswBE/dead-link-checker
 
 go 1.23.0
 
+toolchain go1.24.1
+
 require (
 	github.com/adhocore/gronx v1.19.5
 	github.com/containrrr/shoutrrr v0.8.0
@@ -12,7 +14,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/pflag v1.0.6
-	github.com/spf13/viper v1.20.0
+	github.com/spf13/viper v1.20.1
 )
 
 require (
