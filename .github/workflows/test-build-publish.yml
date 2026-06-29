@@ -70,7 +70,7 @@ jobs:
 
       - name: Setup Ko
         if: github.event_name == 'push'
-        uses: ko-build/setup-ko@v0.9
+        uses: ko-build/setup-ko@v0.10
         with:
           version: v0.18.1
         env:
